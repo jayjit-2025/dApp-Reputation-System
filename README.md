@@ -9,7 +9,7 @@
   
   <br><br>
 
-  <img width="100%" alt="RepuTE Dashboard Screenshot" src="C:\Users\JAYJIT DUTTA\.gemini\antigravity\brain\c90ec09d-4de3-4829-be85-c1ee0c5e76d9\dashboard_page_1774158602506.png" />
+  <img width="100%" alt="RepuTE Dashboard Screenshot" src="assets/dashboard.png" />
 
   <br><br>
 
@@ -49,7 +49,7 @@ Every endorsement is **immutable**, stored as a `manageData` operation on the St
 1. **Fetches the identity** anchor from the Stellar Horizon network.
 2. **Aggregates endorsements** stored across the transaction history.
 3. **Calculates a score index** based on the frequency and quality of peer trust fragments.
-4. **Visualizes the rank** (e.g., Top 4%) within the global RepuTE network.
+4. **Visualizes the rank** (e.g., Top 25%) within the global RepuTE network.
 5. **Logs every action** on-chain ensuring a 1:1 audit trail.
 
 ---
@@ -128,9 +128,10 @@ The architecture ensures data integrity:
 **Storage Pattern**: `manageData(repute:<target_addr_short>, <fragment_data>)`
 - [View Protocol Activity on Stellar Expert](https://stellar.expert/explorer/testnet)
 
-### 📸 RepuTE Success Confirmation
-<img width="100%" alt="Endorsement Success Screenshot" src="C:\Users\JAYJIT DUTTA\OneDrive\Desktop\stellar-connect-wallet\stellar-connect-wallet\public\favicon.ico" style="display:none;" />
-<img width="100%" alt="Endorse Page UI" src="C:\Users\JAYJIT DUTTA\.gemini\antigravity\brain\c90ec09d-4de3-4829-be85-c1ee0c5e76d9\endorse_page_1774158617785.png" />
+### 📸 RepuTE Proof of Activity
+<img width="100%" alt="Stellar Expert Transaction Proof" src="assets/tx-proof.png" />
+<br>
+<img width="100%" alt="Stellar Lab Verification" src="assets/stellar-lab.png" />
 
 ---
 
@@ -140,12 +141,12 @@ The architecture ensures data integrity:
 
 | Field | Value |
 |:---|:---|
-| **Transaction Hash** | `tx_hash_goes_here` |
+| **Transaction Hash** | `7024344d6915a9cfea5cf8f41120484f7a2787ab97181cfedcf90c067bf37a42` |
 | **Operation Type** | `manageData` |
-| **Category** | `Development Excellence` |
-| **Reputation Delta** | `+750` |
+| **Category** | `Community Contribution` |
+| **Reputation Delta** | `+700` |
 | **Status** | ✅ Success |
-| **Network** | Stellar Testnet |
+| **Processed** | `2026-03-22 05:56:31 UTC` |
 | **Fee Charged** | `0.00001 XLM` |
 
 ---
