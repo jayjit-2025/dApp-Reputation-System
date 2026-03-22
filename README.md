@@ -151,7 +151,8 @@ The architecture ensures data integrity:
 🔗 [View on Stellar Expert](https://stellar.expert/explorer/testnet/tx/aaad32821258bd76c2012dfa268e713b39f7e686b616867526ee0e46d1f4efa3)
 
 ### 📸 Transaction Proof Screenshot
-<img width="100%" alt="Stellar Expert Transaction Proof" src="assets/soroban-proof.png" />
+<img width="1915" height="861" alt="Screenshot 2026-03-22 114917" src="https://github.com/user-attachments/assets/6dd03522-082c-4bfc-a281-7dab00070dd5" />
+
 
 ---
 
