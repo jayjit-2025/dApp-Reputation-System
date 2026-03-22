@@ -124,9 +124,9 @@ The architecture ensures data integrity:
 
 <a name="contract"></a>
 ## 🔗 On-Chain Protocol
-**Network**: `Stellar Testnet v2.0`
+**Protocol Anchor**: `GCOFHD3RAWIKYNCQ43JLCSHGG3OGVA57MCKEN2QFEREFALQIOIJ3TMIC`
 **Storage Pattern**: `manageData(repute:<target_addr_short>, <fragment_data>)`
-- [View Protocol Activity on Stellar Expert](https://stellar.expert/explorer/testnet)
+- [View Protocol Anchor on Stellar Expert](https://stellar.expert/explorer/testnet/account/GCOFHD3RAWIKYNCQ43JLCSHGG3OGVA57MCKEN2QFEREFALQIOIJ3TMIC)
 
 ### 📸 RepuTE Proof of Activity
 <img width="100%" alt="Stellar Expert Transaction Proof" src="assets/tx-proof.png" />
@@ -141,7 +141,7 @@ The architecture ensures data integrity:
 
 | Field | Value |
 |:---|:---|
-| **Transaction Hash** | `7024344d6915a9cfea5cf8f41120484f7a2787ab97181cfedcf90c067bf37a42` |
+| **Transaction Hash** | [`7024344d6915a9cfea5cf8f41120484f7a2787ab97181cfedcf90c067bf37a42`](https://stellar.expert/explorer/testnet/tx/7024344d6915a9cfea5cf8f41120484f7a2787ab97181cfedcf90c067bf37a42) |
 | **Operation Type** | `manageData` |
 | **Category** | `Community Contribution` |
 | **Reputation Delta** | `+700` |
