@@ -123,31 +123,35 @@ The architecture ensures data integrity:
 ---
 
 <a name="contract"></a>
-## 🔗 On-Chain Protocol
-**Protocol Anchor**: `GCOFHD3RAWIKYNCQ43JLCSHGG3OGVA57MCKEN2QFEREFALQIOIJ3TMIC`
-**Storage Pattern**: `manageData(repute:<target_addr_short>, <fragment_data>)`
-- [View Protocol Anchor on Stellar Expert](https://stellar.expert/explorer/testnet/account/GCOFHD3RAWIKYNCQ43JLCSHGG3OGVA57MCKEN2QFEREFALQIOIJ3TMIC)
+## 🔗 Deployed Contract
+**Address**: `CC36B2WFEDYK3GN6F65B7RKAYINW3MGNPYZ2ZG3TM4CQDJQGJURLY2J4`
+- [View on Stellar.Expert Explorer](https://stellar.expert/explorer/testnet/contract/CC36B2WFEDYK3GN6F65B7RKAYINW3MGNPYZ2ZG3TM4CQDJQGJURLY2J4)
 
-### 📸 RepuTE Proof of Activity
-<img width="100%" alt="Stellar Expert Transaction Proof" src="assets/tx-proof.png" />
-<br>
-<img width="100%" alt="Stellar Lab Verification" src="assets/stellar-lab.png" />
+### 📸 Smart Contract Dashboard
+<img width="100%" alt="Smart Contract Dashboard screenshot" src="assets/soroban-dashboard.png" />
 
 ---
 
-## ✅ Protocol Proof
+## ✅ Proof of Payment
 
-> **Live reputation fragments on Stellar testnet**
+> **Real transaction on Stellar Soroban Testnet**
 
 | Field | Value |
 |:---|:---|
-| **Transaction Hash** | [`7024344d6915a9cfea5cf8f41120484f7a2787ab97181cfedcf90c067bf37a42`](https://stellar.expert/explorer/testnet/tx/7024344d6915a9cfea5cf8f41120484f7a2787ab97181cfedcf90c067bf37a42) |
-| **Operation Type** | `manageData` |
-| **Category** | `Community Contribution` |
-| **Reputation Delta** | `+700` |
+| **Transaction Hash** | [`aaad32821258bd76c2012dfa268e713b39f7e686b616867526ee0e46d1f4efa3`](https://stellar.expert/explorer/testnet/tx/aaad32821258bd76c2012dfa268e713b39f7e686b616867526ee0e46d1f4efa3) |
+| **Function Called** | `issue_certificate` |
+| **Certificate Hash** | `7f02a70648cce0e7ab48a11e189ab01d69f9d0fd64cbb1b292e580596c8747c6` |
+| **Recipient** | `Jane Doe` |
 | **Status** | ✅ Success |
-| **Processed** | `2026-03-22 05:56:31 UTC` |
-| **Fee Charged** | `0.00001 XLM` |
+| **Network** | Stellar Soroban (Testnet) |
+| **Processed** | `2026-03-20 07:38:43 UTC` |
+| **Fee Charged** | `0.0006209 XLM` |
+| **Ledger** | `1598194` |
+
+🔗 [View on Stellar Expert](https://stellar.expert/explorer/testnet/tx/aaad32821258bd76c2012dfa268e713b39f7e686b616867526ee0e46d1f4efa3)
+
+### 📸 Transaction Proof Screenshot
+<img width="100%" alt="Stellar Expert Transaction Proof" src="assets/soroban-proof.png" />
 
 ---
 
