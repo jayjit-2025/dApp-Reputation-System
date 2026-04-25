@@ -43,7 +43,7 @@ const ScoreRing = ({ score, size = 200, strokeWidth = 8 }) => {
 };
 
 const DashboardPage = () => {
-  const { publicKey, shortKey: _shortKey, connected, balance: _balance } = useWallet(); 
+  const { publicKey, connected } = useWallet();
   const [transactions, setTransactions] = useState([]);
   const [accountData, setAccountData] = useState({});
   const [loading, setLoading] = useState(true);
