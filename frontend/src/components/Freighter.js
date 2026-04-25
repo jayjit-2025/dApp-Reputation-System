@@ -1,121 +1,167 @@
 import {
-  signTransaction,
-  setAllowed,
-  getAddress,
-} from "@stellar/freighter-api";
+  StellarWalletsKit,
+  WalletNetwork,
+  allowAllModules,
+  FREIGHTER_ID,
+} from "@creit.tech/stellar-wallets-kit";
 import * as StellarSdk from "@stellar/stellar-sdk";
 
 const HORIZON_URL = "https://horizon-testnet.stellar.org";
+const RPC_URL = "https://soroban-testnet.stellar.org";
 const NETWORK_PASSPHRASE = StellarSdk.Networks.TESTNET;
 const server = new StellarSdk.Horizon.Server(HORIZON_URL);
+const rpcServer = new StellarSdk.rpc.Server(RPC_URL);
 
-/** Ask Freighter for permission. Returns true if allowed. */
-const checkConnection = async () => {
-  try {
-    const result = await setAllowed();
-    return result;
-  } catch (e) {
-    console.error("[Freighter] checkConnection error:", e);
-    return { error: e?.message || "Permission denied" };
-  }
-};
+// New Deployed Contract ID
+const CONTRACT_ID = "CCE4HERRLNWDJYGOD637TQCHZSMEY6TODMXL3R6GLLPZJKFDJU42TFIT";
 
-/** Get the connected wallet public key. */
-const retrievePublicKey = async () => {
-  const { address, error } = await getAddress();
-  if (error) throw new Error(error);
-  return address;
-};
+const kit = new StellarWalletsKit({
+  network: WalletNetwork.TESTNET,
+  selectedWalletId: FREIGHTER_ID,
+  modules: allowAllModules(),
+});
 
-/** Fetch the native XLM balance of the connected wallet. */
-const getBalance = async () => {
-  await setAllowed();
-  const { address, error } = await getAddress();
-  if (error) throw new Error(error);
-  const account = await server.loadAccount(address);
-  const xlm = account.balances.find((b) => b.asset_type === "native");
-  return xlm?.balance || "0";
-};
-
-/** Sign an XDR transaction with Freighter. */
-const userSignTransaction = async (xdr, network, signWith) => {
-  return await signTransaction(xdr, {
-    network,
-    accountToSign: signWith,
+/** Open Modal for Multi-Wallet Connection */
+const connectKitWallet = async () => {
+  return new Promise((resolve, reject) => {
+    kit.openModal({
+      onWalletSelected: async (option) => {
+        try {
+          kit.setWallet(option.id);
+          const address = await kit.getPublicKey();
+          resolve(address);
+        } catch (e) {
+          reject(e);
+        }
+      },
+      onClosed: () => reject(new Error("Wallet connection cancelled")),
+    });
   });
 };
 
-/**
- * Submit an endorsement on-chain.
- * Creates a Stellar tx with a manageData op storing the endorsement,
- * plus a memo with endorsement info.
- * Returns the tx hash on success.
- */
+const checkConnection = async () => {
+  return true; // Wallet kit handles it
+};
+
+const retrievePublicKey = async () => {
+  return await kit.getPublicKey();
+};
+
+const getBalance = async () => {
+  try {
+    const address = await kit.getPublicKey();
+    const account = await server.loadAccount(address);
+    const xlm = account.balances.find((b) => b.asset_type === "native");
+    return xlm?.balance || "0";
+  } catch (e) {
+    console.error("[WalletKit] getBalance error:", e);
+    return "0";
+  }
+};
+
 const submitEndorsement = async (senderPubKey, targetAddress, category, score) => {
   try {
     const account = await server.loadAccount(senderPubKey);
-
-    const dataKey = `repute:${targetAddress.slice(0, 8)}`;
-    const dataValue = `${category}:${score}:${Date.now()}`;
+    const contract = new StellarSdk.Contract(CONTRACT_ID);
 
     const tx = new StellarSdk.TransactionBuilder(account, {
       fee: StellarSdk.BASE_FEE,
       networkPassphrase: NETWORK_PASSPHRASE,
     })
       .addOperation(
-        StellarSdk.Operation.manageData({
-          name: dataKey,
-          value: dataValue,
-        })
+        contract.call(
+          "endorse",
+          StellarSdk.nativeToScVal(senderPubKey, { type: "address" }),
+          StellarSdk.nativeToScVal(targetAddress, { type: "address" }),
+          StellarSdk.nativeToScVal(category, { type: "string" }),
+          StellarSdk.nativeToScVal(score, { type: "u32" })
+        )
       )
-      .addMemo(StellarSdk.Memo.text(`endorse:${targetAddress.slice(0, 12)}`))
       .setTimeout(120)
       .build();
 
-    const xdr = tx.toXDR();
+    const preparedTransaction = await rpcServer.prepareTransaction(tx);
+    const { signedTxXdr } = await kit.signTransaction(preparedTransaction.toXDR());
+    
+    const signedTx = StellarSdk.TransactionBuilder.fromXDR(signedTxXdr, NETWORK_PASSPHRASE);
+    const result = await rpcServer.sendTransaction(signedTx);
 
-    const signedResult = await signTransaction(xdr, {
-      networkPassphrase: NETWORK_PASSPHRASE,
-    });
+    if (result.status === "ERROR") {
+      throw new Error("Transaction submission failed: " + JSON.stringify(result.errorResultXdr));
+    }
 
-    const signedXdr =
-      typeof signedResult === "string"
-        ? signedResult
-        : signedResult.signedTxXdr || signedResult;
+    let txResponse;
+    let attempts = 0;
+    while (attempts < 15) {
+      txResponse = await rpcServer.getTransaction(result.hash);
+      if (txResponse.status !== "NOT_FOUND") {
+        break;
+      }
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      attempts++;
+    }
 
-    const signedTx = StellarSdk.TransactionBuilder.fromXDR(
-      signedXdr,
-      NETWORK_PASSPHRASE
-    );
-
-    const result = await server.submitTransaction(signedTx);
-    return {
-      success: true,
-      hash: result.hash,
-      ledger: result.ledger,
-    };
+    if (txResponse && txResponse.status === "SUCCESS") {
+      return {
+        success: true,
+        hash: result.hash,
+        ledger: txResponse.latestLedger,
+      };
+    } else {
+      throw new Error(
+        txResponse?.resultMetaXdr 
+          ? "Contract execution reverted." 
+          : "Transaction failed on-chain."
+      );
+    }
   } catch (e) {
-    console.error("[Freighter] submitEndorsement error:", e);
+    console.error("[WalletKit] submitEndorsement error:", e);
+    
+    // Parse the 3 specific errors from simulation/execution
+    let errorMsg = e?.message || "Transaction failed";
+    if (errorMsg.includes("Error(Contract, #1)")) {
+        errorMsg = "Self-endorsement is not allowed.";
+    } else if (errorMsg.includes("Error(Contract, #2)")) {
+        errorMsg = "Score must be between 1 and 1000.";
+    } else if (errorMsg.includes("Error(Contract, #3)")) {
+        errorMsg = "Wallet is already endorsed by you.";
+    }
+
     return {
       success: false,
-      error: e?.message || "Transaction failed",
+      error: errorMsg,
     };
   }
 };
 
-/**
- * Fetch recent transactions for a given wallet from Horizon.
- * Returns an array of simplified transaction objects.
- */
+const fetchSorobanEvents = async () => {
+    try {
+        const currentLedger = await rpcServer.getLatestLedger();
+        const startLedger = Math.max(1, currentLedger.sequence - 5000); // Past ~7 hours
+        const events = await rpcServer.getEvents({
+            startLedger,
+            filters: [
+                {
+                    type: "contract",
+                    contractIds: [CONTRACT_ID],
+                    topics: [
+                       [StellarSdk.nativeToScVal("endorse", { type: "symbol" }).toXDR("base64")]
+                    ]
+                }
+            ],
+            limit: 10
+        });
+        return events.events || [];
+    } catch (e) {
+        console.error("fetchSorobanEvents error:", e);
+        return [];
+    }
+};
+
+// Keep existing methods for backward compatibility in lookup
 const fetchRecentTransactions = async (publicKey, limit = 10) => {
   try {
-    const txs = await server
-      .transactions()
-      .forAccount(publicKey)
-      .order("desc")
-      .limit(limit)
-      .call();
-
+    const txs = await server.transactions().forAccount(publicKey).order("desc").limit(limit).call();
     return txs.records.map((tx) => ({
       hash: tx.hash,
       createdAt: tx.created_at,
@@ -128,34 +174,33 @@ const fetchRecentTransactions = async (publicKey, limit = 10) => {
       successful: tx.successful,
     }));
   } catch (e) {
-    console.error("[Freighter] fetchRecentTransactions error:", e);
     return [];
   }
 };
 
-/**
- * Fetch account data entries (manageData) for a given wallet.
- * These contain the endorsement information.
- */
 const fetchAccountData = async (publicKey) => {
   try {
     const account = await server.loadAccount(publicKey);
     return account.data_attr || {};
   } catch (e) {
-    console.error("[Freighter] fetchAccountData error:", e);
     return {};
   }
 };
 
 export {
+  connectKitWallet,
   checkConnection,
   retrievePublicKey,
   getBalance,
-  userSignTransaction,
   submitEndorsement,
   fetchRecentTransactions,
   fetchAccountData,
+  fetchSorobanEvents,
   server,
+  rpcServer,
   HORIZON_URL,
+  RPC_URL,
   NETWORK_PASSPHRASE,
+  CONTRACT_ID,
+  kit
 };

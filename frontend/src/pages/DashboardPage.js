@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useWallet } from '../context/WalletContext';
-import { fetchRecentTransactions, fetchAccountData } from '../components/Freighter';
+import { fetchRecentTransactions, fetchAccountData, fetchSorobanEvents } from '../components/Freighter';
+import * as StellarSdk from "@stellar/stellar-sdk";
 
 const ScoreRing = ({ score, size = 200, strokeWidth = 8 }) => {
   const radius = (size - strokeWidth) / 2;
@@ -46,21 +47,32 @@ const DashboardPage = () => {
   const { publicKey, connected } = useWallet();
   const [transactions, setTransactions] = useState([]);
   const [accountData, setAccountData] = useState({});
+  const [sorobanEvents, setSorobanEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!connected || !publicKey) return;
     const load = async () => {
       setLoading(true);
-      const [txs, data] = await Promise.all([
+      const [txs, data, events] = await Promise.all([
         fetchRecentTransactions(publicKey, 10),
         fetchAccountData(publicKey),
+        fetchSorobanEvents(),
       ]);
       setTransactions(txs);
       setAccountData(data);
+      setSorobanEvents(events);
       setLoading(false);
     };
     load();
+    
+    // Poll for new events every 10 seconds (Real-time Event Integration)
+    const intervalId = setInterval(async () => {
+        const events = await fetchSorobanEvents();
+        setSorobanEvents(events);
+    }, 10000);
+    
+    return () => clearInterval(intervalId);
   }, [connected, publicKey]);
 
   // Compute endorsement count from account data
@@ -102,8 +114,31 @@ const DashboardPage = () => {
     return bars;
   }, [transactions]);
 
-  // Format activity items from transactions
+  // Format activity items from real-time Soroban events
   const activityItems = useMemo(() => {
+    if (sorobanEvents.length > 0) {
+        return sorobanEvents.map((evt, i) => {
+            let cat = "Endorsement";
+            let addr = "Unknown";
+            try {
+                // Topic 1 is target address, Topic 2 is sender address
+                const targetAddress = StellarSdk.scValToNative(StellarSdk.xdr.ScVal.fromXDR(evt.topic[1], "base64"));
+                addr = `${targetAddress.slice(0, 5)}...${targetAddress.slice(-4)}`;
+                
+                // Value is the category
+                cat = StellarSdk.scValToNative(StellarSdk.xdr.ScVal.fromXDR(evt.value, "base64"));
+            } catch(e) {}
+            
+            return {
+                id: evt.id,
+                address: addr,
+                description: `Received endorsement for "${cat}"`,
+                dotClass: 'activity-dot-cyan',
+                time: `Ledger ${evt.ledger}`,
+            };
+        });
+    }
+
     return transactions.slice(0, 5).map((tx, i) => {
       const shortAddr = `${tx.sourceAccount.slice(0, 5)}...${tx.sourceAccount.slice(-4)}`;
       const dots = ['activity-dot-cyan', 'activity-dot-green', 'activity-dot-purple'];
@@ -124,9 +159,9 @@ const DashboardPage = () => {
         time: times[i] || `${i + 1}d ago`,
       };
     });
-  }, [transactions]);
+  }, [transactions, sorobanEvents]);
 
-  // Fallback activity when no real txs
+  // Fallback activity when no real txs or events
   const fallbackActivity = [
     {
       id: '1',

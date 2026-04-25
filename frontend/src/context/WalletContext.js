@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useCallback } from 'react';
-import { checkConnection, retrievePublicKey, getBalance } from '../components/Freighter';
+import { connectKitWallet, getBalance } from '../components/Freighter';
 
 const WalletContext = createContext(null);
 
@@ -13,18 +13,14 @@ export function WalletProvider({ children }) {
     if (connected || connecting) return;
     setConnecting(true);
     try {
-      const allowed = await checkConnection();
-      if (allowed.error || !allowed) {
-        throw new Error('Permission denied by Freighter.');
-      }
-      const key = await retrievePublicKey();
+      const key = await connectKitWallet();
       const bal = await getBalance();
       setPublicKey(key);
       setBalance(Number(bal).toFixed(2));
       setConnected(true);
     } catch (e) {
-      console.error('[Wallet] connect error:', e);
-      alert('Error connecting to wallet: ' + e.message);
+      console.error('[WalletKit] connect error:', e);
+      // alert('Error connecting to wallet: ' + e.message); // removed alert to avoid blocking UI unnecessarily 
     } finally {
       setConnecting(false);
     }
