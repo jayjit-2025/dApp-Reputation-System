@@ -2,6 +2,8 @@
   <h1>RepuTE</h1>
   <p><b>Stellar On-Chain Reputation System: Trust is earned. Reputation is proof.</b></p>
 
+  <a href="https://d-app-reputation-system-xmjy.vercel.app"><img src="https://img.shields.io/badge/🚀_Live_Demo-Visit_App-00e5ff?style=for-the-badge" /></a>
+
   <img src="https://img.shields.io/badge/React-black?style=for-the-badge&logo=react&logoColor=white" />
   <img src="https://img.shields.io/badge/Stellar-E84142?style=for-the-badge&logo=stellar&logoColor=white" />
   <img src="https://img.shields.io/badge/Freighter-3178C6?style=for-the-badge&logo=web3.js&logoColor=white" />
