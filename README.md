@@ -126,8 +126,8 @@ The architecture ensures data integrity:
 
 <a name="contract"></a>
 ## 🔗 Deployed Contract
-**Address**: `CC36B2WFEDYK3GN6F65B7RKAYINW3MGNPYZ2ZG3TM4CQDJQGJURLY2J4`
-- [View on Stellar.Expert Explorer](https://stellar.expert/explorer/testnet/contract/CC36B2WFEDYK3GN6F65B7RKAYINW3MGNPYZ2ZG3TM4CQDJQGJURLY2J4)
+**Address**: `CCE4HERRLNWDJYGOD637TQCHZSMEY6TODMXL3R6GLLPZJKFDJU42TFIT`
+- [View on Stellar.Expert Explorer](https://stellar.expert/explorer/testnet/contract/CCE4HERRLNWDJYGOD637TQCHZSMEY6TODMXL3R6GLLPZJKFDJU42TFIT)
 
 ### 📸 Smart Contract Dashboard
 <img width="1919" height="865" alt="Screenshot 2026-03-20 151723" src="https://github.com/user-attachments/assets/5c216acd-7326-4c7c-881e-a334a7395225" />
