@@ -4,6 +4,7 @@
 
   <a href="https://d-app-reputation-system-xmjy.vercel.app"><img src="https://img.shields.io/badge/🚀_Live_Demo-Visit_App-00e5ff?style=for-the-badge" /></a>
   <a href="https://drive.google.com/file/d/1hmRtNW-MiJ7Epk8dBr604tM1m6JKnlWc/view?usp=drive_link"><img src="https://img.shields.io/badge/🎬_Demo_Video-Watch_Now-ff4081?style=for-the-badge" /></a>
+  <a href="https://github.com/jayjit-2025/dApp-Reputation-System/actions"><img src="https://github.com/jayjit-2025/dApp-Reputation-System/actions/workflows/ci.yml/badge.svg" alt="CI Pipeline" /></a>
 
   <img src="https://img.shields.io/badge/React-black?style=for-the-badge&logo=react&logoColor=white" />
   <img src="https://img.shields.io/badge/Stellar-E84142?style=for-the-badge&logo=stellar&logoColor=white" />
@@ -24,6 +25,8 @@
   <a href="#architecture">Architecture</a> • 
   <a href="#ui-refresh">RepuTE v2.0</a> • 
   <a href="#plan">Pipeline</a> • 
+  <a href="#cicd">CI/CD</a> • 
+  <a href="#mobile">Mobile</a> • 
   <a href="#setup">Quick Start</a>
 </div>
 
@@ -150,6 +153,37 @@ cargo test
 ### 📸 Test Output Proof
 
 <img width="100%" alt="4 Tests Passing - Cargo Test Output" src="assets/tests-passing.png" />
+
+---
+
+<a name="cicd"></a>
+## ⚙️ CI/CD Pipeline
+
+This project uses **GitHub Actions** for continuous integration. Every push to `main` automatically:
+- ✅ Runs all 4 Soroban contract unit tests (`cargo test`)
+- ✅ Builds the production React bundle (`npm run build`)
+
+### 📸 CI/CD Pipeline Screenshot
+
+[![CI Pipeline](https://github.com/jayjit-2025/dApp-Reputation-System/actions/workflows/ci.yml/badge.svg)](https://github.com/jayjit-2025/dApp-Reputation-System/actions)
+
+> View live runs: [GitHub Actions](https://github.com/jayjit-2025/dApp-Reputation-System/actions)
+
+---
+
+<a name="mobile"></a>
+## 📱 Mobile Responsive
+
+RepuTE is fully responsive across all screen sizes. On mobile:
+- Sidebar collapses and is replaced by a **bottom navigation bar**
+- Dashboard grid switches to **single column**
+- All forms, cards, and score rings scale to fit mobile viewports
+
+### 📸 Mobile View
+
+<div align="center">
+  <img width="320" alt="RepuTE Mobile View" src="assets/mobile-responsive.png" />
+</div>
 
 ---
 
