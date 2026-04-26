@@ -3,6 +3,7 @@
   <p><b>Stellar On-Chain Reputation System: Trust is earned. Reputation is proof.</b></p>
 
   <a href="https://d-app-reputation-system-xmjy.vercel.app"><img src="https://img.shields.io/badge/🚀_Live_Demo-Visit_App-00e5ff?style=for-the-badge" /></a>
+  <a href="https://drive.google.com/file/d/1hmRtNW-MiJ7Epk8dBr604tM1m6JKnlWc/view?usp=drive_link"><img src="https://img.shields.io/badge/🎬_Demo_Video-Watch_Now-ff4081?style=for-the-badge" /></a>
 
   <img src="https://img.shields.io/badge/React-black?style=for-the-badge&logo=react&logoColor=white" />
   <img src="https://img.shields.io/badge/Stellar-E84142?style=for-the-badge&logo=stellar&logoColor=white" />
@@ -115,12 +116,36 @@ The architecture ensures data integrity:
 
 ## 🛠️ Tech Stack & Tools
 
-- **React 19**: Modern frontend engine for high-density reactive components.
-- **Stellar SDK**: High-level library for communicating with the Stellar network.
-- **Freighter API**: The official Stellar wallet interface for secure keys handling.
-- **CSS3 Design System**: Custom-built design system with HSL dark mode tokens.
-- **React Router**: For seamless navigation between Dashboard, Endorse, and Lookup.
-- **Stellar Expert**: Integrated for deep transaction inspection.
+| Layer | Technology | Purpose |
+|:---|:---|:---|
+| **Frontend** | React 19 | Modern reactive UI engine |
+| **Blockchain** | Stellar SDK v14 | Horizon & Soroban RPC integration |
+| **Smart Contract** | Rust (Soroban SDK 22) | On-chain reputation logic with custom errors |
+| **Wallet** | `@creit.tech/stellar-wallets-kit` | Multi-wallet support (Freighter, xBull, Albedo) |
+| **Styling** | CSS3 Design System | Custom HSL dark-mode token system |
+| **Routing** | React Router v7 | SPA page navigation |
+| **Explorer** | Stellar Expert | Transaction deep-link inspection |
+
+---
+
+## 🧪 Test Suite
+
+The Soroban smart contract has **4 passing unit tests** covering all 3 custom error types:
+
+```bash
+# Run all contract tests
+cd contract/hello_world
+cargo test
+```
+
+| Test | Scenario | Expected |
+|:---|:---|:---|
+| `test_successful_endorsement` | Valid endorsement | ✅ Stores endorsement & emits event |
+| `test_self_endorsement_not_allowed` | Endorsing own address | ❌ Error #1 – `SelfEndorsementNotAllowed` |
+| `test_invalid_score_range` | Score > 1000 | ❌ Error #2 – `InvalidScoreRange` |
+| `test_already_endorsed` | Duplicate endorsement | ❌ Error #3 – `AlreadyEndorsed` |
+
+> **Result**: `4 tests passed; 0 failed`
 
 ---
 
@@ -179,8 +204,9 @@ graph LR
   - Reconstructs the historical trust graph.
 
 ### 2. Supported Wallets
-- **Freighter Wallet** (Native Support)
-- **Stellar Browser Extension**
+- **Freighter** (via `@creit.tech/stellar-wallets-kit`)
+- **xBull Wallet** (via `@creit.tech/stellar-wallets-kit`)
+- **Albedo** (via `@creit.tech/stellar-wallets-kit`)
 
 ---
 
@@ -188,15 +214,29 @@ graph LR
 
 ```text
 .
-├── README.md                # Project documentation
-└── stellar-connect-wallet    # Frontend Application
-    ├── public/              # Static assets & Branding
+├── README.md                   # Project documentation
+├── Cargo.toml                  # Rust workspace configuration
+├── contract/
+│   └── hello_world/
+│       └── src/
+│           ├── lib.rs          # Reputation smart contract (3 errors, events)
+│           └── test.rs         # 4 unit tests (all passing)
+└── frontend/                   # React Frontend Application
+    ├── public/                 # Static assets & Branding
     └── src/
-        ├── context/         # Wallet State Provider
-        ├── components/      # Sidebar, TopNav, Freighter Utils
-        ├── pages/           # Dashboard, Endorse, Lookup, Landing
-        ├── App.js           # Router & Layout
-        └── App.css          # Design System Styles
+        ├── context/
+        │   └── WalletContext.js  # Multi-wallet state provider
+        ├── components/
+        │   ├── Freighter.js      # Soroban RPC + WalletsKit integration
+        │   ├── Sidebar.js        # Navigation sidebar
+        │   └── TopNav.js         # Top navigation bar
+        ├── pages/
+        │   ├── LandingPage.js    # Wallet connect entry page
+        │   ├── DashboardPage.js  # Score ring + real-time events
+        │   ├── EndorsePage.js    # Submit endorsement (calls contract)
+        │   └── LookupPage.js     # Lookup wallet reputation
+        ├── App.js               # Router & Layout
+        └── App.css              # Design System Styles
 ```
 
 ---
@@ -206,12 +246,14 @@ graph LR
 
 ### A) Prerequisites
 - **Node.js**: v18+
-- **Freighter Wallet**: Installed as a browser extension
+- **Rust + Cargo**: [Install via rustup](https://rustup.rs/)
+- A Stellar wallet extension (Freighter, xBull, or Albedo)
 
 ### B) Frontend Setup
-1. **Clone & Navigate**:
+1. **Clone the repo**:
    ```bash
-   cd stellar-connect-wallet
+   git clone https://github.com/jayjit-2025/dApp-Reputation-System.git
+   cd dApp-Reputation-System/frontend
    ```
 2. **Install dependencies**:
    ```bash
@@ -221,11 +263,24 @@ graph LR
    ```bash
    npm start
    ```
-4. **Access the portal**: Open [http://localhost:3000](http://localhost:3000) (Accept self-signed cert for HTTPS).
+4. **Access the portal**: Open [https://localhost:3000](https://localhost:3000)
+
+### C) Smart Contract (optional — already deployed)
+```bash
+cd contract/hello_world
+cargo test        # Run the 4 unit tests
+cargo build --target wasm32-unknown-unknown --release  # Build WASM
+```
+
+---
+
+## 🎬 Demo Video
+
+[![Watch Demo](https://img.shields.io/badge/▶_Watch_Demo_Video-Google_Drive-ff4081?style=for-the-badge&logo=google-drive&logoColor=white)](https://drive.google.com/file/d/1hmRtNW-MiJ7Epk8dBr604tM1m6JKnlWc/view?usp=drive_link)
 
 ---
 
 ## 👨‍💻 Author
-**Stellar Developer**
-- Building the Sovereign Ledger
-- [GitHub Repository](https://github.com/stellar-connect-wallet)
+**Jayjit Dutta**
+- Building on Stellar — Trust is earned. Reputation is proof.
+- [GitHub](https://github.com/jayjit-2025) · [Live App](https://d-app-reputation-system-xmjy.vercel.app) · [Demo Video](https://drive.google.com/file/d/1hmRtNW-MiJ7Epk8dBr604tM1m6JKnlWc/view?usp=drive_link)
