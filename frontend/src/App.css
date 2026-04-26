@@ -946,3 +946,211 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* ============================================
+   MOBILE RESPONSIVE — Breakpoints
+   ============================================ */
+
+/* ── Tablet (≤ 900px) ── */
+@media (max-width: 900px) {
+  :root {
+    --sidebar-width: 0px;
+  }
+
+  /* Hide sidebar, use bottom nav instead */
+  .sidebar {
+    display: none;
+  }
+
+  .app-main {
+    margin-left: 0;
+  }
+
+  .topnav {
+    left: 0;
+    padding: 0 16px;
+  }
+
+  .app-content {
+    padding: 20px 16px;
+  }
+
+  /* Dashboard: single column */
+  .dash-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Quick cards: single column */
+  .dash-grid + div,
+  div[style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Lookup result grid */
+  .lookup-result-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Landing card */
+  .landing-card {
+    padding: 28px 24px;
+    max-width: 100%;
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+
+  .landing-footer {
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* Score ring smaller */
+  .score-ring-number {
+    font-size: 42px;
+  }
+}
+
+/* ── Mobile (≤ 600px) ── */
+@media (max-width: 600px) {
+  /* Bottom navigation bar */
+  .app-layout {
+    flex-direction: column;
+    padding-bottom: 64px;
+  }
+
+  /* Mobile bottom nav */
+  .mobile-nav {
+    display: flex !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-default);
+    z-index: 300;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 8px;
+  }
+
+  .topnav {
+    left: 0;
+    padding: 0 12px;
+  }
+
+  .topnav-tabs {
+    display: none;
+  }
+
+  .app-content {
+    padding: 16px 12px;
+    margin-top: var(--topnav-height);
+  }
+
+  /* Landing */
+  .landing-title {
+    font-size: 32px;
+  }
+
+  .landing-card {
+    padding: 24px 16px;
+    margin: 0 12px;
+  }
+
+  .landing-stats {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  /* Dashboard */
+  .dash-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .dash-stats-row {
+    gap: 20px;
+  }
+
+  .dash-stat-value {
+    font-size: 22px;
+  }
+
+  /* Quick action cards: stack */
+  div[style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  .quick-card {
+    padding: 18px;
+  }
+
+  .quick-card-title {
+    font-size: 15px;
+  }
+
+  /* Score ring */
+  .score-ring-number {
+    font-size: 36px;
+  }
+
+  /* Endorse page */
+  .endorse-container {
+    max-width: 100%;
+  }
+
+  .endorse-buttons {
+    flex-direction: column;
+  }
+
+  .endorse-tx-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  /* Lookup */
+  .lookup-search {
+    flex-direction: column;
+  }
+
+  .lookup-result-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lookup-identity-addr {
+    font-size: 16px;
+  }
+
+  .lookup-identity-stats {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  /* Cards */
+  .card {
+    padding: 16px;
+  }
+
+  /* Endorsement items */
+  .endorsement-item {
+    padding: 12px;
+  }
+
+  .endorsement-meta {
+    align-items: flex-start;
+  }
+
+  /* Top nav: hide wallet address */
+  .topnav-right .btn-connect span {
+    display: none;
+  }
+}
+
+/* ── Mobile Nav Icons (shown only on mobile) ── */
+.mobile-nav {
+  display: none;
+}

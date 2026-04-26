@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, NavLink } from 'react-router-dom';
 import './App.css';
 import { WalletProvider } from './context/WalletContext';
 import Sidebar from './components/Sidebar';
@@ -9,6 +9,25 @@ import DashboardPage from './pages/DashboardPage';
 import EndorsePage from './pages/EndorsePage';
 import LookupPage from './pages/LookupPage';
 
+function MobileNav() {
+  return (
+    <nav className="mobile-nav" aria-label="Mobile navigation">
+      <NavLink to="/dashboard" className={({ isActive }) => `sidebar-link${isActive ? ' active' : ''}`} style={{ flexDirection: 'column', gap: 2, padding: '6px 16px', fontSize: 10 }}>
+        <span style={{ fontSize: 20 }}>📊</span>
+        Dashboard
+      </NavLink>
+      <NavLink to="/endorse" className={({ isActive }) => `sidebar-link${isActive ? ' active' : ''}`} style={{ flexDirection: 'column', gap: 2, padding: '6px 16px', fontSize: 10 }}>
+        <span style={{ fontSize: 20 }}>🤝</span>
+        Endorse
+      </NavLink>
+      <NavLink to="/lookup" className={({ isActive }) => `sidebar-link${isActive ? ' active' : ''}`} style={{ flexDirection: 'column', gap: 2, padding: '6px 16px', fontSize: 10 }}>
+        <span style={{ fontSize: 20 }}>🔍</span>
+        Lookup
+      </NavLink>
+    </nav>
+  );
+}
+
 function AppLayout({ children }) {
   return (
     <div className="app-layout">
@@ -17,6 +36,7 @@ function AppLayout({ children }) {
         <TopNav />
         <div className="app-content">{children}</div>
       </div>
+      <MobileNav />
     </div>
   );
 }
