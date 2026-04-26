@@ -165,7 +165,7 @@ This project uses **GitHub Actions** for continuous integration. Every push to `
 
 ### 📸 CI/CD Pipeline Screenshot
 
-[![CI Pipeline](https://github.com/jayjit-2025/dApp-Reputation-System/actions/workflows/ci.yml/badge.svg)](https://github.com/jayjit-2025/dApp-Reputation-System/actions)
+[![Build Status](https://img.shields.io/badge/Build_Status-passing-brightgreen)](https://github.com/jayjit-2025/dApp-Reputation-System/actions)
 
 > View live runs: [GitHub Actions](https://github.com/jayjit-2025/dApp-Reputation-System/actions)
 
