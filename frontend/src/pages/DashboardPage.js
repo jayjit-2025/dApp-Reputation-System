@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useWallet } from '../context/WalletContext';
 import { fetchRecentTransactions, fetchAccountData, fetchSorobanEvents } from '../components/Freighter';
+import * as StellarSdk from "@stellar/stellar-sdk";
 const ScoreRing = ({ score, size = 200, strokeWidth = 8 }) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
