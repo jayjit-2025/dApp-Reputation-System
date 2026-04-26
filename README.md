@@ -147,6 +147,10 @@ cargo test
 
 > **Result**: `4 tests passed; 0 failed`
 
+### 📸 Test Output Proof
+
+<img width="100%" alt="4 Tests Passing - Cargo Test Output" src="assets/tests-passing.png" />
+
 ---
 
 <a name="contract"></a>
