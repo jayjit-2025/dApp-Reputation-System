@@ -138,14 +138,14 @@ cd contract/hello_world
 cargo test
 ```
 
-| Test | Scenario | Expected |
-|:---|:---|:---|
-| `test_successful_endorsement` | Valid endorsement | ✅ Stores endorsement & emits event |
-| `test_self_endorsement_not_allowed` | Endorsing own address | ❌ Error #1 – `SelfEndorsementNotAllowed` |
-| `test_invalid_score_range` | Score > 1000 | ❌ Error #2 – `InvalidScoreRange` |
-| `test_already_endorsed` | Duplicate endorsement | ❌ Error #3 – `AlreadyEndorsed` |
+| Test | Scenario | Result | Verified Behaviour |
+|:---|:---|:---:|:---|
+| `test_successful_endorsement` | Valid endorsement | ✅ PASS | Endorsement stored & event emitted |
+| `test_self_endorsement_not_allowed` | Endorsing own address | ✅ PASS | Contract throws Error #1 (`SelfEndorsementNotAllowed`) as expected |
+| `test_invalid_score_range` | Score > 1000 | ✅ PASS | Contract throws Error #2 (`InvalidScoreRange`) as expected |
+| `test_already_endorsed` | Duplicate endorsement | ✅ PASS | Contract throws Error #3 (`AlreadyEndorsed`) as expected |
 
-> **Result**: `4 tests passed; 0 failed`
+> **Result**: `4 passed; 0 failed` — Tests 2–4 use `#[should_panic]`, meaning they **pass** when the contract correctly rejects invalid inputs.
 
 ### 📸 Test Output Proof
 
