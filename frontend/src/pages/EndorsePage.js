@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useWallet } from '../context/WalletContext';
-import { submitEndorsement } from '../components/Freighter';
+import { submitEndorsement, fetchOnChainScore } from '../components/Freighter';
 
 const CATEGORIES = [
   'Development Excellence',
@@ -17,16 +17,41 @@ const EndorsePage = () => {
   const { connected, publicKey } = useWallet();
   const [targetAddress, setTargetAddress] = useState('');
   const [category, setCategory] = useState(CATEGORIES[0]);
-  const [score, setScore] = useState(750);
+  
+  const [userScore, setUserScore] = useState(0);
+  const [multiplier, setMultiplier] = useState(0.1);
+  const [pointsApplied, setPointsApplied] = useState(1);
+  
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState(null); // { success, hash, error }
+
+  // Fetch the user's score to calculate their endorsement power
+  useEffect(() => {
+    const loadScore = async () => {
+      if (connected && publicKey) {
+        const score = await fetchOnChainScore(publicKey);
+        setUserScore(score);
+        
+        let mult = 0.1;
+        if (score >= 201 && score <= 400) mult = 0.3;
+        else if (score >= 401 && score <= 600) mult = 0.6;
+        else if (score >= 601 && score <= 800) mult = 1.0;
+        else if (score >= 801 && score <= 950) mult = 1.5;
+        else if (score >= 951) mult = 2.0;
+
+        setMultiplier(mult);
+        setPointsApplied(Math.floor(10 * mult));
+      }
+    };
+    loadScore();
+  }, [connected, publicKey]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!targetAddress || !publicKey) return;
 
     setSubmitting(true);
-    const res = await submitEndorsement(publicKey, targetAddress, category, score);
+    const res = await submitEndorsement(publicKey, targetAddress, category);
     setResult(res);
     setSubmitting(false);
   };
@@ -34,7 +59,6 @@ const EndorsePage = () => {
   const resetForm = () => {
     setTargetAddress('');
     setCategory(CATEGORIES[0]);
-    setScore(750);
     setResult(null);
   };
 
@@ -145,9 +169,9 @@ const EndorsePage = () => {
                     color: 'var(--text-primary)',
                   }}
                 >
-                  {score}
+                  +{pointsApplied}
                 </span>
-                <span className="badge badge-max">MAX</span>
+                <span className="badge badge-max" style={{ background: 'var(--cyan-glow)', color: 'var(--cyan)' }}>PTS</span>
               </div>
 
               {/* Mini momentum chart */}
@@ -275,19 +299,22 @@ const EndorsePage = () => {
             </select>
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Reputation Score (1–1000)</label>
-            <input
-              className="form-input"
-              type="number"
-              min="1"
-              max="1000"
-              value={score}
-              onChange={(e) => setScore(Number(e.target.value))}
-            />
+          <div className="form-group" style={{ background: 'rgba(0,0,0,0.2)', padding: 16, borderRadius: 8, border: '1px solid var(--border-default)' }}>
+            <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>Your Endorsement Power</span>
+              <span className="text-cyan">{multiplier.toFixed(1)}x Multiplier</span>
+            </label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
+              <span style={{ fontSize: 24, fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text-primary)' }}>
+                {pointsApplied}
+              </span>
+              <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+                Points will be added to the target based on your current score ({userScore}).
+              </span>
+            </div>
             <div
               style={{
-                marginTop: 8,
+                marginTop: 12,
                 height: 4,
                 background: 'var(--border-default)',
                 borderRadius: 2,
@@ -296,7 +323,7 @@ const EndorsePage = () => {
             >
               <div
                 style={{
-                  width: `${(score / 1000) * 100}%`,
+                  width: `${(multiplier / 2) * 100}%`,
                   height: '100%',
                   background: 'linear-gradient(90deg, var(--cyan), var(--teal))',
                   borderRadius: 2,
@@ -310,7 +337,7 @@ const EndorsePage = () => {
             className="btn btn-cyan"
             type="submit"
             disabled={submitting || !targetAddress}
-            style={{ width: '100%', marginTop: 8 }}
+            style={{ width: '100%', marginTop: 24 }}
           >
             {submitting ? (
               <>

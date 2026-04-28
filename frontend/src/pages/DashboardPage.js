@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useWallet } from '../context/WalletContext';
-import { fetchRecentTransactions, fetchAccountData, fetchSorobanEvents } from '../components/Freighter';
+import { fetchRecentTransactions, fetchAccountData, fetchSorobanEvents, fetchOnChainScore } from '../components/Freighter';
 import * as StellarSdk from "@stellar/stellar-sdk";
 const ScoreRing = ({ score, size = 200, strokeWidth = 8 }) => {
   const radius = (size - strokeWidth) / 2;
@@ -48,19 +48,23 @@ const DashboardPage = () => {
   const [accountData, setAccountData] = useState({});
   const [sorobanEvents, setSorobanEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [reputationScore, setReputationScore] = useState(0);
 
   useEffect(() => {
     if (!connected || !publicKey) return;
+
     const load = async () => {
       setLoading(true);
-      const [txs, data, events] = await Promise.all([
-        fetchRecentTransactions(publicKey, 10),
+      const [txs, data, events, score] = await Promise.all([
+        fetchRecentTransactions(publicKey),
         fetchAccountData(publicKey),
         fetchSorobanEvents(),
+        fetchOnChainScore(publicKey)
       ]);
       setTransactions(txs);
       setAccountData(data);
       setSorobanEvents(events);
+      setReputationScore(score);
       setLoading(false);
     };
     load();
@@ -69,6 +73,12 @@ const DashboardPage = () => {
     const intervalId = setInterval(async () => {
         const events = await fetchSorobanEvents();
         setSorobanEvents(events);
+        
+        // Also refresh score
+        if (publicKey) {
+          const score = await fetchOnChainScore(publicKey);
+          setReputationScore(score);
+        }
     }, 10000);
     
     return () => clearInterval(intervalId);
@@ -81,16 +91,6 @@ const DashboardPage = () => {
   );
   const endorsementCount = endorsementKeys.length;
 
-  // Generate a deterministic score from publicKey (for demo)
-  const reputationScore = useMemo(() => {
-    if (!publicKey) return 0;
-    let hash = 0;
-    for (let i = 0; i < publicKey.length; i++) {
-      hash = (hash * 31 + publicKey.charCodeAt(i)) % 1000;
-    }
-    return Math.max(200, hash);
-  }, [publicKey]);
-
   // Calculate rank percentage
   const rankPercent = useMemo(() => {
     if (reputationScore >= 900) return 'Top 1%';
@@ -98,15 +98,21 @@ const DashboardPage = () => {
     if (reputationScore >= 700) return 'Top 4%';
     if (reputationScore >= 600) return 'Top 10%';
     if (reputationScore >= 400) return 'Top 25%';
-    return 'Top 50%';
+    if (reputationScore >= 200) return 'Top 50%';
+    return 'Bottom 50%';
   }, [reputationScore]);
 
-  // Momentum chart data from recent txs
-  const momentumData = useMemo(() => {
-    const bars = [25, 35, 45, 40, 50, 55, 42, 60, 70, 80];
-    // If we have transactions, adjust bar heights
-    transactions.forEach((tx, i) => {
-      if (i < bars.length) {
+  // Generate fake activity chart bars based on transaction volume
+  const activityBars = useMemo(() => {
+    const bars = new Array(24).fill(0).map(() => Math.floor(Math.random() * 20 + 5));
+    if (!transactions.length) return bars;
+
+    transactions.forEach((tx) => {
+      const txDate = new Date(tx.createdAt);
+      const now = new Date();
+      const diffHours = Math.floor((now - txDate) / (1000 * 60 * 60));
+      if (diffHours < 24) {
+        const i = 23 - diffHours;
         bars[i] = Math.min(100, bars[i] + (tx.operationCount || 1) * 10);
       }
     });
@@ -119,19 +125,28 @@ const DashboardPage = () => {
         return sorobanEvents.map((evt, i) => {
             let cat = "Endorsement";
             let addr = "Unknown";
+            let desc = "Received endorsement";
             try {
                 // Topic 1 is target address, Topic 2 is sender address
                 const targetAddress = StellarSdk.scValToNative(StellarSdk.xdr.ScVal.fromXDR(evt.topic[1], "base64"));
                 addr = `${targetAddress.slice(0, 5)}...${targetAddress.slice(-4)}`;
                 
-                // Value is the category
-                cat = StellarSdk.scValToNative(StellarSdk.xdr.ScVal.fromXDR(evt.value, "base64"));
+                // Value is a tuple: [category, points_added]
+                const valArray = StellarSdk.scValToNative(StellarSdk.xdr.ScVal.fromXDR(evt.value, "base64"));
+                if (Array.isArray(valArray)) {
+                    cat = valArray[0];
+                    const weight = valArray[1];
+                    desc = `Received endorsement for "${cat}" (+${weight} pts)`;
+                } else {
+                    cat = valArray; // Fallback for older events
+                    desc = `Received endorsement for "${cat}"`;
+                }
             } catch(e) {}
             
             return {
                 id: evt.id,
                 address: addr,
-                description: `Received endorsement for "${cat}"`,
+                description: desc,
                 dotClass: 'activity-dot-cyan',
                 time: `Ledger ${evt.ledger}`,
             };
@@ -323,10 +338,10 @@ const DashboardPage = () => {
               </span>
             </div>
             <div className="momentum-chart">
-              {momentumData.map((h, i) => (
+              {activityBars.map((h, i) => (
                 <div
                   key={i}
-                  className={`momentum-bar ${i === momentumData.length - 1 ? 'highlight' : i >= momentumData.length - 3 ? 'semi' : ''}`}
+                  className={`momentum-bar ${i === activityBars.length - 1 ? 'highlight' : i >= activityBars.length - 3 ? 'semi' : ''}`}
                   style={{ height: `${h}%` }}
                 />
               ))}

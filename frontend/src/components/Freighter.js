@@ -13,7 +13,7 @@ const server = new StellarSdk.Horizon.Server(HORIZON_URL);
 const rpcServer = new StellarSdk.rpc.Server(RPC_URL);
 
 // New Deployed Contract ID
-const CONTRACT_ID = "CCE4HERRLNWDJYGOD637TQCHZSMEY6TODMXL3R6GLLPZJKFDJU42TFIT";
+const CONTRACT_ID = "CB424V2KWLZ4EXHLQQR4P63KR4RWKVE7S4UM2QUWT2P2RHDLLFSZWVDH";
 
 const kit = new StellarWalletsKit({
   network: WalletNetwork.TESTNET,
@@ -59,7 +59,7 @@ const getBalance = async () => {
   }
 };
 
-const submitEndorsement = async (senderPubKey, targetAddress, category, score) => {
+const submitEndorsement = async (senderPubKey, targetAddress, category) => {
   try {
     const account = await server.loadAccount(senderPubKey);
     const contract = new StellarSdk.Contract(CONTRACT_ID);
@@ -73,8 +73,7 @@ const submitEndorsement = async (senderPubKey, targetAddress, category, score) =
           "endorse",
           StellarSdk.nativeToScVal(senderPubKey, { type: "address" }),
           StellarSdk.nativeToScVal(targetAddress, { type: "address" }),
-          StellarSdk.nativeToScVal(category, { type: "string" }),
-          StellarSdk.nativeToScVal(score, { type: "u32" })
+          StellarSdk.nativeToScVal(category, { type: "string" })
         )
       )
       .setTimeout(120)
@@ -187,6 +186,38 @@ const fetchAccountData = async (publicKey) => {
   }
 };
 
+const fetchOnChainScore = async (address) => {
+  try {
+    const contract = new StellarSdk.Contract(CONTRACT_ID);
+    const tx = new StellarSdk.TransactionBuilder(
+      new StellarSdk.Account(address, "0"), 
+      {
+        fee: StellarSdk.BASE_FEE,
+        networkPassphrase: NETWORK_PASSPHRASE,
+      }
+    )
+      .addOperation(
+        contract.call(
+          "get_score",
+          StellarSdk.nativeToScVal(address, { type: "address" })
+        )
+      )
+      .setTimeout(30)
+      .build();
+
+    const prepared = await rpcServer.prepareTransaction(tx);
+    // Since get_score only reads state, we can simulate to get the result
+    const simResult = await rpcServer.simulateTransaction(prepared);
+    if (simResult && simResult.result && simResult.result.retval) {
+      return StellarSdk.scValToNative(simResult.result.retval);
+    }
+    return 0;
+  } catch (e) {
+    console.error("fetchOnChainScore error:", e);
+    return 0;
+  }
+};
+
 export {
   connectKitWallet,
   checkConnection,
@@ -196,6 +227,7 @@ export {
   fetchRecentTransactions,
   fetchAccountData,
   fetchSorobanEvents,
+  fetchOnChainScore,
   server,
   rpcServer,
   HORIZON_URL,

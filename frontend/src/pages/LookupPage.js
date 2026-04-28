@@ -4,6 +4,7 @@ import { useWallet } from '../context/WalletContext';
 import {
   fetchRecentTransactions,
   fetchAccountData,
+  fetchOnChainScore,
   server,
 } from '../components/Freighter';
 
@@ -74,9 +75,10 @@ const LookupPage = () => {
         throw new Error('Invalid Stellar address format. Must start with G and be 56 characters.');
       }
 
-      const [txs, data] = await Promise.all([
+      const [txs, data, onChainScore] = await Promise.all([
         fetchRecentTransactions(searchAddr, 20),
         fetchAccountData(searchAddr),
+        fetchOnChainScore(searchAddr),
       ]);
 
       // Also try to load the account for basic info
@@ -91,6 +93,7 @@ const LookupPage = () => {
         address: searchAddr,
         dataEntries: data,
         account: accountInfo,
+        onChainScore: onChainScore,
       });
       setTransactions(txs);
     } catch (err) {
@@ -111,12 +114,7 @@ const LookupPage = () => {
     );
     const totalEndorsements = endorsementKeys.length || Math.floor(Math.random() * 200 + 50);
 
-    // Deterministic score from address
-    let hash = 0;
-    for (let i = 0; i < searchAddr.length; i++) {
-      hash = (hash * 31 + searchAddr.charCodeAt(i)) % 1000;
-    }
-    const score = Math.max(50, hash);
+    const score = walletData.onChainScore || 0;
 
     let standing = 'Top 50%';
     let badge = 'active';
@@ -172,6 +170,7 @@ const LookupPage = () => {
           '"Consistent validator with excellent uptime."',
           '"Active contributor to the Stellar ecosystem."',
         ];
+        const weights = ['+10', '+15', '+6'];
 
         return {
           id: tx.hash,
@@ -180,6 +179,7 @@ const LookupPage = () => {
           time: new Date(tx.createdAt).toLocaleDateString(),
           badge: badgeTypes[i % badgeTypes.length],
           icon: icons[i % icons.length],
+          weight: weights[i % weights.length],
         };
       });
   }, [transactions]);
@@ -330,7 +330,12 @@ const LookupPage = () => {
                   <div className="endorsement-quote">{item.quote}</div>
                 </div>
                 <div className="endorsement-meta">
-                  <span className="endorsement-time">{item.time}</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+                    <span className="endorsement-time">{item.time}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--cyan)' }}>
+                      {item.weight || '+10'} PTS
+                    </span>
+                  </div>
                   <span
                     className={`badge badge-${item.badge}`}
                   >
