@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useWallet } from '../context/WalletContext';
 import {
   fetchRecentTransactions,
@@ -54,16 +54,17 @@ const ScoreRingSmall = ({ score, size = 100, strokeWidth = 6 }) => {
 
 const LookupPage = () => {
   const { connected } = useWallet();
+  const location = useLocation();
   const [searchAddr, setSearchAddr] = useState('');
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [walletData, setWalletData] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [error, setError] = useState('');
+  const [copied, setCopied] = useState(false);
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!searchAddr) return;
+  const performSearch = async (addressToSearch) => {
+    if (!addressToSearch) return;
 
     setLoading(true);
     setError('');
@@ -71,26 +72,26 @@ const LookupPage = () => {
 
     try {
       // Validate it's a valid Stellar address
-      if (!searchAddr.startsWith('G') || searchAddr.length !== 56) {
+      if (!addressToSearch.startsWith('G') || addressToSearch.length !== 56) {
         throw new Error('Invalid Stellar address format. Must start with G and be 56 characters.');
       }
 
       const [txs, data, onChainScore] = await Promise.all([
-        fetchRecentTransactions(searchAddr, 20),
-        fetchAccountData(searchAddr),
-        fetchOnChainScore(searchAddr),
+        fetchRecentTransactions(addressToSearch, 20),
+        fetchAccountData(addressToSearch),
+        fetchOnChainScore(addressToSearch),
       ]);
 
       // Also try to load the account for basic info
       let accountInfo = null;
       try {
-        accountInfo = await server.loadAccount(searchAddr);
+        accountInfo = await server.loadAccount(addressToSearch);
       } catch (e) {
         // Account might not exist
       }
 
       setWalletData({
-        address: searchAddr,
+        address: addressToSearch,
         dataEntries: data,
         account: accountInfo,
         onChainScore: onChainScore,
@@ -103,6 +104,28 @@ const LookupPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    performSearch(searchAddr);
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const walletParam = params.get('wallet');
+    if (walletParam) {
+      setSearchAddr(walletParam);
+      performSearch(walletParam);
+    }
+  }, [location.search]);
+
+  const copyShareLink = () => {
+    if (!walletData?.address) return;
+    const shareUrl = `${window.location.origin}/lookup?wallet=${walletData.address}`;
+    navigator.clipboard.writeText(shareUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   // Compute stats from wallet data
@@ -124,7 +147,7 @@ const LookupPage = () => {
     else if (score >= 500) { standing = 'Top 10%'; badge = 'vouch'; }
 
     return { totalEndorsements, score, standing, badge };
-  }, [walletData, searchAddr]);
+  }, [walletData]);
 
   // Build endorsement history from transactions
   const endorsementHistory = useMemo(() => {
@@ -185,22 +208,9 @@ const LookupPage = () => {
   }, [transactions]);
 
   // Shorten the displayed address
-  const displayAddr = searchAddr
-    ? `${searchAddr.slice(0, 6)}...${searchAddr.slice(9, 13)}...${searchAddr.slice(-5)}`
+  const displayAddr = walletData?.address
+    ? `${walletData.address.slice(0, 6)}...${walletData.address.slice(9, 13)}...${walletData.address.slice(-5)}`
     : '';
-
-  if (!connected) {
-    return (
-      <div style={{ textAlign: 'center', padding: '80px 20px' }}>
-        <h2 style={{ color: 'var(--text-primary)', marginBottom: 16 }}>
-          Connect your wallet to look up reputations
-        </h2>
-        <Link to="/" className="btn btn-cyan">
-          Go to Landing Page
-        </Link>
-      </div>
-    );
-  }
 
   return (
     <div className="animate-in">
@@ -255,8 +265,19 @@ const LookupPage = () => {
           {/* Identity + Score grid */}
           <div className="lookup-result-grid">
             <div className="card lookup-identity">
-              <div className="section-label">Verified Identity</div>
-              <div className="lookup-identity-addr">{displayAddr}</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <div className="section-label">Verified Identity</div>
+                  <div className="lookup-identity-addr">{displayAddr}</div>
+                </div>
+                <button 
+                  className="btn btn-outline" 
+                  onClick={copyShareLink}
+                  style={{ padding: '6px 12px', fontSize: 12, display: 'flex', gap: 6, alignItems: 'center' }}
+                >
+                  {copied ? '✓ Copied!' : '🔗 Copy Link'}
+                </button>
+              </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 12 }}>
                 <svg
