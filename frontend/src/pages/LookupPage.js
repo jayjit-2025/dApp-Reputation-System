@@ -5,6 +5,7 @@ import {
   fetchRecentTransactions,
   fetchAccountData,
   fetchOnChainScore,
+  fetchEndorsementCount,
   server,
 } from '../components/Freighter';
 
@@ -75,10 +76,11 @@ const LookupPage = () => {
         throw new Error('Invalid Stellar address format. Must start with G and be 56 characters.');
       }
 
-      const [txs, data, onChainScore] = await Promise.all([
+      const [txs, data, onChainScore, endorsementCount] = await Promise.all([
         fetchRecentTransactions(addressToSearch, 20),
         fetchAccountData(addressToSearch),
         fetchOnChainScore(addressToSearch),
+        fetchEndorsementCount(addressToSearch),
       ]);
 
       // Also try to load the account for basic info
@@ -94,6 +96,7 @@ const LookupPage = () => {
         dataEntries: data,
         account: accountInfo,
         onChainScore: onChainScore,
+        endorsementCount: endorsementCount,
       });
       setTransactions(txs);
     } catch (err) {
@@ -131,11 +134,7 @@ const LookupPage = () => {
   const stats = useMemo(() => {
     if (!walletData) return null;
 
-    const endorsementKeys = Object.keys(walletData.dataEntries).filter((k) =>
-      k.startsWith('repute:')
-    );
-    const totalEndorsements = endorsementKeys.length || Math.floor(Math.random() * 200 + 50);
-
+    const totalEndorsements = walletData.endorsementCount || 0;
     const score = walletData.onChainScore || 0;
 
     let standing = 'Top 50%';

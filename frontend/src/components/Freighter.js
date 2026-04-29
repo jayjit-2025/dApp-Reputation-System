@@ -219,6 +219,37 @@ const fetchOnChainScore = async (address) => {
   }
 };
 
+const fetchEndorsementCount = async (address) => {
+  try {
+    const contract = new StellarSdk.Contract(CONTRACT_ID);
+    const tx = new StellarSdk.TransactionBuilder(
+      new StellarSdk.Account(address, "0"), 
+      {
+        fee: StellarSdk.BASE_FEE,
+        networkPassphrase: NETWORK_PASSPHRASE,
+      }
+    )
+      .addOperation(
+        contract.call(
+          "get_endorsement_count",
+          StellarSdk.nativeToScVal(address, { type: "address" })
+        )
+      )
+      .setTimeout(30)
+      .build();
+
+    const prepared = await rpcServer.prepareTransaction(tx);
+    const simResult = await rpcServer.simulateTransaction(prepared);
+    if (simResult && simResult.result && simResult.result.retval) {
+      return StellarSdk.scValToNative(simResult.result.retval);
+    }
+    return 0;
+  } catch (e) {
+    console.error("fetchEndorsementCount error:", e);
+    return 0;
+  }
+};
+
 export {
   connectKitWallet,
   checkConnection,
@@ -229,6 +260,7 @@ export {
   fetchAccountData,
   fetchSorobanEvents,
   fetchOnChainScore,
+  fetchEndorsementCount,
   server,
   rpcServer,
   HORIZON_URL,

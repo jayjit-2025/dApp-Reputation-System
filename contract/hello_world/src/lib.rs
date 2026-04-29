@@ -29,6 +29,7 @@ pub struct Endorsement {
 #[derive(Clone)]
 pub enum DataKey {
     TotalScore(Address),
+    EndorsementCount(Address),
 }
 
 #[contract]
@@ -80,6 +81,12 @@ impl ReputationContract {
         let endorsement = Endorsement { category: category.clone(), weight_applied: points_added, timestamp };
         env.storage().persistent().set(&key, &endorsement);
 
+        // Increment endorsement count for target
+        let count_key = DataKey::EndorsementCount(target.clone());
+        let mut count: u32 = env.storage().persistent().get(&count_key).unwrap_or(0);
+        count += 1;
+        env.storage().persistent().set(&count_key, &count);
+
         // Publish event with both category and points_added
         env.events().publish((symbol_short!("endorse"), target, sender), (category, points_added));
 
@@ -93,6 +100,11 @@ impl ReputationContract {
 
     pub fn get_score(env: Env, target: Address) -> u32 {
         let key = DataKey::TotalScore(target);
+        env.storage().persistent().get(&key).unwrap_or(0)
+    }
+
+    pub fn get_endorsement_count(env: Env, target: Address) -> u32 {
+        let key = DataKey::EndorsementCount(target);
         env.storage().persistent().get(&key).unwrap_or(0)
     }
 }

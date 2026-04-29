@@ -100,7 +100,7 @@ const LandingPage = () => {
                     boxShadow: '0 0 6px var(--green)',
                   }}
                 />
-                Mainnet Alpha Live
+                Testnet Live
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
