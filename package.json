@@ -1,4 +1,9 @@
 {
+  "name": "dapp-reputation-system",
+  "scripts": {
+    "build": "cd frontend && npm install && cross-env CI=false npm run build",
+    "install": "cd frontend && npm install"
+  },
   "dependencies": {
     "@stellar/freighter-api": "^6.0.1",
     "@stellar/stellar-sdk": "^14.6.1",
