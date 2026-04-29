@@ -28,7 +28,7 @@ const connectKitWallet = async () => {
       onWalletSelected: async (option) => {
         try {
           kit.setWallet(option.id);
-          const address = await kit.getPublicKey();
+          const { address } = await kit.getAddress();
           resolve(address);
         } catch (e) {
           reject(e);
@@ -44,12 +44,13 @@ const checkConnection = async () => {
 };
 
 const retrievePublicKey = async () => {
-  return await kit.getPublicKey();
+  const { address } = await kit.getAddress();
+  return address;
 };
 
 const getBalance = async () => {
   try {
-    const address = await kit.getPublicKey();
+    const { address } = await kit.getAddress();
     const account = await server.loadAccount(address);
     const xlm = account.balances.find((b) => b.asset_type === "native");
     return xlm?.balance || "0";
