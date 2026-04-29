@@ -20,7 +20,7 @@ export function WalletProvider({ children }) {
       setConnected(true);
     } catch (e) {
       console.error('[WalletKit] connect error:', e);
-      // alert('Error connecting to wallet: ' + e.message); // removed alert to avoid blocking UI unnecessarily 
+      alert('Could not connect wallet: ' + (e.message || 'Unknown error. Make sure Freighter is set to Testnet.'));
     } finally {
       setConnecting(false);
     }
