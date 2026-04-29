@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useWallet } from '../context/WalletContext';
 import {
   fetchRecentTransactions,
@@ -53,7 +53,6 @@ const ScoreRingSmall = ({ score, size = 100, strokeWidth = 6 }) => {
 };
 
 const LookupPage = () => {
-  const { connected } = useWallet();
   const location = useLocation();
   const [searchAddr, setSearchAddr] = useState('');
   const [loading, setLoading] = useState(false);
