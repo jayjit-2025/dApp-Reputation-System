@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useWallet } from '../context/WalletContext';
+
 import {
   fetchRecentTransactions,
   fetchAccountData,
