@@ -312,6 +312,47 @@ cargo build --target wasm32-unknown-unknown --release  # Build WASM
 
 ---
 
+## 🔧 Modifications & Improvements
+
+### 1. Weighted Endorsement by Endorser's Score
+**Problem:** In the original system, any wallet could endorse another wallet and the same fixed points were added regardless of who was endorsing. A brand new fake wallet with zero history carried identical weight to a high-reputation wallet — making the system vulnerable to Sybil attacks where someone creates multiple fake wallets to artificially inflate a score.
+
+**Modification:** The Soroban smart contract was modified so that when an endorsement is processed, it first fetches the endorser's current score from on-chain storage and applies a credibility multiplier before adding points to the target wallet.
+
+**Multiplier Tiers:**
+
+| Endorser Score | Multiplier | Points Added |
+|:---|:---|:---|
+| 0 – 200 | 0.1x | ~1 pt |
+| 201 – 400 | 0.3x | ~3 pts |
+| 401 – 600 | 0.6x | ~6 pts |
+| 601 – 800 | 1.0x | ~10 pts |
+| 801 – 950 | 1.5x | ~15 pts |
+| 951 – 1000 | 2.0x | ~20 pts |
+
+**Impact:** Fake wallets starting at zero score contribute near-zero points per endorsement, making coordinated Sybil attacks structurally pointless. High-reputation wallets carry proportionally more influence, reflecting real-world trust dynamics.
+
+**Frontend Display:** The Endorse page now shows the connected wallet's current endorsement power before submission — e.g. "Your endorsement power: 1.0x — 10 points". The confirmation screen and activity feed display the exact weight applied per endorsement.
+
+### 2. Shareable Reputation Card via URL
+**Problem:** Previously, viewing a wallet's reputation required the other person to open the RepuTE app, manually paste a wallet address, and understand Stellar public key format — creating significant friction for sharing reputation outside the Web3 ecosystem. This made the system inaccessible to anyone unfamiliar with blockchain concepts.
+
+**Modification:** The Lookup page was enhanced to generate a direct shareable URL for any searched wallet in the format:
+`https://d-app-reputation-system-xmjy.vercel.app/lookup?wallet=WALLET_ADDRESS`
+
+A **Copy Link** button was added to the Lookup page. When someone opens a shared URL directly, the app auto-fetches and displays that wallet's full reputation snapshot without requiring any manual input or wallet connection from the viewer.
+
+**What the card displays:**
+- Truncated wallet address with verified identity badge
+- Current score index
+- Network standing and tier
+- Endorsement history entries
+- Score momentum trend
+
+**Impact:** Anyone — with or without a Stellar wallet or crypto knowledge — can view a reputation profile by simply opening a link. This extends RepuTE's utility far beyond the Web3 ecosystem into practical real-world use cases like freelancer profiles, employer verification, and community trust layers.
+
+---
+
 ## 🎬 Demo Video
 
 [![Watch Demo](https://img.shields.io/badge/▶_Watch_Demo_Video-Google_Drive-ff4081?style=for-the-badge&logo=google-drive&logoColor=white)](https://drive.google.com/file/d/1txrpm3KzmnMPw_ziM69p6M5Kz65_RoxP/view?usp=drive_link)
