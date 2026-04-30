@@ -55,17 +55,23 @@ const DashboardPage = () => {
 
     const load = async () => {
       setLoading(true);
-      const [txs, data, events, score] = await Promise.all([
-        fetchRecentTransactions(publicKey),
-        fetchAccountData(publicKey),
-        fetchSorobanEvents(),
-        fetchOnChainScore(publicKey)
-      ]);
-      setTransactions(txs);
-      setAccountData(data);
-      setSorobanEvents(events);
-      setReputationScore(score);
-      setLoading(false);
+      try {
+        const [txs, data, events, score] = await Promise.all([
+          fetchRecentTransactions(publicKey),
+          fetchAccountData(publicKey),
+          fetchSorobanEvents(),
+          fetchOnChainScore(publicKey)
+        ]);
+        setTransactions(txs);
+        setAccountData(data);
+        setSorobanEvents(events);
+        setReputationScore(score);
+      } catch (err) {
+        alert("Failed to fetch data from the smart contract: " + err.message);
+        setReputationScore(0);
+      } finally {
+        setLoading(false);
+      }
     };
     load();
     
@@ -156,51 +162,17 @@ const DashboardPage = () => {
     return transactions.slice(0, 5).map((tx, i) => {
       const shortAddr = `${tx.sourceAccount.slice(0, 5)}...${tx.sourceAccount.slice(-4)}`;
       const dots = ['activity-dot-cyan', 'activity-dot-green', 'activity-dot-purple'];
-      const descriptions = [
-        `Vouched for "Development Excellence" in Project X.`,
-        `Received +12 score adjustment from peer review.`,
-        `Endorsed for "Consistent Reliability" on-chain.`,
-        `Transaction processed with ${tx.operationCount} operation(s).`,
-        `Memo: ${tx.memo || 'No memo'} — Ledger #${tx.ledger}.`,
-      ];
-      const times = ['2h ago', '4h ago', '8h ago', '1d ago', '2d ago'];
-
       return {
         id: tx.hash,
         address: shortAddr,
-        description: descriptions[i] || `Transaction on ledger #${tx.ledger}`,
+        description: tx.memo ? `Memo: ${tx.memo}` : `Transaction processed with ${tx.operationCount} operation(s)`,
         dotClass: dots[i % dots.length],
-        time: times[i] || `${i + 1}d ago`,
+        time: new Date(tx.createdAt).toLocaleDateString(),
       };
     });
   }, [transactions, sorobanEvents]);
 
-  // Fallback activity when no real txs or events
-  const fallbackActivity = [
-    {
-      id: '1',
-      address: '0xfa2...1fFd',
-      description: 'Vouched for "Development Excellence" in Project X.',
-      dotClass: 'activity-dot-cyan',
-      time: '2h ago',
-    },
-    {
-      id: '2',
-      address: 'vital1k.eth',
-      description: 'Received +12 score adjustment from peer review.',
-      dotClass: 'activity-dot-green',
-      time: '5h ago',
-    },
-    {
-      id: '3',
-      address: '0xc24...a28b',
-      description: 'Endorsed for "Consistent Reliability" on-chain.',
-      dotClass: 'activity-dot-purple',
-      time: '8h ago',
-    },
-  ];
-
-  const displayActivity = activityItems.length > 0 ? activityItems : fallbackActivity;
+  const displayActivity = activityItems;
 
   if (!connected) {
     return (

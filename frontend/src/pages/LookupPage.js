@@ -295,7 +295,7 @@ const LookupPage = () => {
               <div className="lookup-identity-stats">
                 <div>
                   <div className="section-label">Total Endorsements</div>
-                  <div className="dash-stat-value text-cyan">{stats.totalEndorsements}</div>
+                  <div className="dash-stat-value text-cyan">{endorsementHistory.length}</div>
                 </div>
                 <div>
                   <div className="section-label">Network Standing</div>

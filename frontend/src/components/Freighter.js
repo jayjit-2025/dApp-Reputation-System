@@ -215,7 +215,7 @@ const fetchOnChainScore = async (address) => {
     return 0;
   } catch (e) {
     console.error("fetchOnChainScore error:", e);
-    return 0;
+    throw new Error("Failed to fetch on-chain score: " + e.message);
   }
 };
 
