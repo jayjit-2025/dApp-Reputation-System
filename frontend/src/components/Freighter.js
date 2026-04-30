@@ -189,6 +189,7 @@ const fetchAccountData = async (publicKey) => {
 
 const fetchOnChainScore = async (address) => {
   try {
+    console.log(`[Score Fetch] Querying contract ${CONTRACT_ID} for address: ${address}`);
     const contract = new StellarSdk.Contract(CONTRACT_ID);
     const tx = new StellarSdk.TransactionBuilder(
       new StellarSdk.Account(address, "0"), 
@@ -206,24 +207,27 @@ const fetchOnChainScore = async (address) => {
       .setTimeout(30)
       .build();
 
-    const prepared = await rpcServer.prepareTransaction(tx);
-    // Since get_score only reads state, we can simulate to get the result
-    const simResult = await rpcServer.simulateTransaction(prepared);
+    // Simulate the ORIGINAL transaction directly.
+    // DO NOT call prepareTransaction first — it internally simulates and modifies
+    // the TX, so double-simulating returns wrong values (e.g. 1 instead of real score).
+    const simResult = await rpcServer.simulateTransaction(tx);
+    console.log(`[Score Fetch] Raw simulation result:`, JSON.stringify(simResult.result));
     if (simResult && simResult.result && simResult.result.retval) {
       const rawValue = StellarSdk.scValToNative(simResult.result.retval);
-      console.log(`[Score Fetch] Address: ${address} | Raw RetVal:`, simResult.result.retval, `| Parsed Score:`, rawValue);
-      return rawValue;
+      console.log(`[Score Fetch] Address: ${address} | Parsed Score: ${rawValue}`);
+      return typeof rawValue === 'number' ? rawValue : Number(rawValue);
     }
-    console.log(`[Score Fetch] Address: ${address} | No valid retval found in simulation. Falling back to 0.`);
+    console.warn(`[Score Fetch] Address: ${address} | No retval in simulation`);
     return 0;
   } catch (e) {
-    console.error("fetchOnChainScore error:", e);
-    throw new Error("Failed to fetch on-chain score: " + e.message);
+    console.error("[Score Fetch] Error for address:", address, e);
+    return 0;
   }
 };
 
 const fetchEndorsementCount = async (address) => {
   try {
+    console.log(`[Endorsement Count] Querying for address: ${address}`);
     const contract = new StellarSdk.Contract(CONTRACT_ID);
     const tx = new StellarSdk.TransactionBuilder(
       new StellarSdk.Account(address, "0"), 
@@ -241,14 +245,18 @@ const fetchEndorsementCount = async (address) => {
       .setTimeout(30)
       .build();
 
-    const prepared = await rpcServer.prepareTransaction(tx);
-    const simResult = await rpcServer.simulateTransaction(prepared);
+    // Simulate the ORIGINAL transaction directly
+    const simResult = await rpcServer.simulateTransaction(tx);
+    console.log(`[Endorsement Count] Raw simulation result:`, JSON.stringify(simResult.result));
     if (simResult && simResult.result && simResult.result.retval) {
-      return StellarSdk.scValToNative(simResult.result.retval);
+      const rawValue = StellarSdk.scValToNative(simResult.result.retval);
+      console.log(`[Endorsement Count] Address: ${address} | Count: ${rawValue}`);
+      return typeof rawValue === 'number' ? rawValue : Number(rawValue);
     }
+    console.warn(`[Endorsement Count] Address: ${address} | No retval`);
     return 0;
   } catch (e) {
-    console.error("fetchEndorsementCount error:", e);
+    console.error("[Endorsement Count] Error:", e);
     return 0;
   }
 };

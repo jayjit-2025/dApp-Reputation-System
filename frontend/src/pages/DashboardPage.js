@@ -67,7 +67,7 @@ const DashboardPage = () => {
         setSorobanEvents(events);
         setReputationScore(score);
       } catch (err) {
-        alert("Failed to fetch data from the smart contract: " + err.message);
+        console.error('[Dashboard] Load error:', err);
         setReputationScore(0);
       } finally {
         setLoading(false);
@@ -161,22 +161,31 @@ const DashboardPage = () => {
 
     return transactions.slice(0, 5).map((tx, i) => {
       const dots = ['activity-dot-cyan', 'activity-dot-green', 'activity-dot-purple'];
-      let desc = 'Reputation action recorded';
-      let targetShort = tx.sourceAccount ? `${tx.sourceAccount.slice(0, 5)}...${tx.sourceAccount.slice(-4)}` : 'Unknown';
+      const shortAddr = tx.sourceAccount ? `${tx.sourceAccount.slice(0, 5)}...${tx.sourceAccount.slice(-4)}` : 'Unknown';
 
-      if (tx.memo && typeof tx.memo === 'string' && tx.memo.startsWith('endorse:')) {
-        const target = tx.memo.split(':')[1];
-        if (target && target.length > 8) {
-          targetShort = `${target.slice(0, 5)}...${target.slice(-4)}`;
+      // Bug 3 fix: Soroban invokeHostFunction transactions do NOT have traditional memos.
+      // The memo field is always empty for contract calls. Instead of trying to parse
+      // a non-existent memo, we identify these as contract interactions directly.
+      let desc;
+      if (tx.memo && typeof tx.memo === 'string' && tx.memo.length > 0) {
+        // If there IS a memo (non-contract tx), parse it
+        console.log(`[Activity] TX ${tx.hash.slice(0,8)} has memo: "${tx.memo}"`);
+        if (tx.memo.startsWith('endorse:')) {
+          const target = tx.memo.split(':')[1];
+          const targetShort = target && target.length > 8 ? `${target.slice(0, 5)}...${target.slice(-4)}` : target;
+          desc = `Endorsed ${targetShort}`;
+        } else {
+          desc = tx.memo;
         }
-        desc = `Endorsed [${targetShort}]`;
-      } else if (tx.operationCount > 0) {
-        desc = `Reputation action recorded`;
+      } else {
+        // Soroban contract calls — no memo exists
+        // All transactions to this wallet are reputation actions
+        desc = `Endorsed ${shortAddr} via smart contract`;
       }
 
       return {
         id: tx.hash,
-        address: targetShort,
+        address: shortAddr,
         description: desc,
         dotClass: dots[i % dots.length],
         time: new Date(tx.createdAt).toLocaleDateString(),
@@ -258,7 +267,7 @@ const DashboardPage = () => {
                   <div>
                     <div className="section-label">Endorsements</div>
                     <div className="dash-stat-value text-cyan">
-                      {endorsementCount > 0 ? endorsementCount : 78}
+                      {endorsementCount}
                     </div>
                     <div className="dash-stat-label">Peers</div>
                   </div>

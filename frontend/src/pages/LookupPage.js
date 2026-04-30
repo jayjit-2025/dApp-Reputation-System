@@ -66,8 +66,11 @@ const LookupPage = () => {
   const performSearch = async (addressToSearch) => {
     if (!addressToSearch) return;
 
-    setLoading(true);
+    // Bug 4 fix: Clear ALL previous state before starting new search
+    setWalletData(null);
+    setTransactions([]);
     setError('');
+    setLoading(true);
     setSearched(true);
 
     try {
@@ -82,6 +85,8 @@ const LookupPage = () => {
         fetchOnChainScore(addressToSearch),
         fetchEndorsementCount(addressToSearch),
       ]);
+
+      console.log(`[Lookup] Address: ${addressToSearch} | Score: ${onChainScore} | Endorsements: ${endorsementCount} | Transactions: ${txs.length}`);
 
       // Also try to load the account for basic info
       let accountInfo = null;
@@ -100,6 +105,7 @@ const LookupPage = () => {
       });
       setTransactions(txs);
     } catch (err) {
+      console.error('[Lookup] Search failed:', err);
       setError(err.message || 'Failed to look up wallet');
       setWalletData(null);
       setTransactions([]);
@@ -148,59 +154,31 @@ const LookupPage = () => {
   }, [walletData]);
 
   // Build endorsement history from transactions
+  // Bug 2 fix: Soroban invokeHostFunction transactions do NOT have memos.
+  // The old code filtered by tx.memo.includes('endorse') which removed ALL real txs.
+  // Now we show all transactions — they are all contract interactions.
   const endorsementHistory = useMemo(() => {
     if (!transactions.length) {
-      // Provide demo data if no real txs
-      return [
-        {
-          id: '1',
-          address: 'GB4W...LBQZ',
-          quote: '"Highly reliable liquidity provider. Smooth swaps every time."',
-          time: '2 hours ago',
-          badge: 'vouch',
-          icon: '🛡️',
-        },
-        {
-          id: '2',
-          address: 'GA7X...M2PK',
-          quote: '"Top-tier validator. Zero downtime in the last epoch."',
-          time: '1 day ago',
-          badge: 'top-tier',
-          icon: '⭐',
-        },
-        {
-          id: '3',
-          address: 'GDR4...XBTS',
-          quote: '"Active community contributor. Provided excellent documentation."',
-          time: '3 days ago',
-          badge: 'active',
-          icon: '🏆',
-        },
-      ];
+      return []; // No fake data — show real empty state
     }
 
     return transactions
-      .filter((tx) => tx.memo && tx.memo.includes('endorse'))
       .slice(0, 10)
       .map((tx, i) => {
         const shortAddr = `${tx.sourceAccount.slice(0, 4)}...${tx.sourceAccount.slice(-4)}`;
         const badgeTypes = ['vouch', 'top-tier', 'active'];
         const icons = ['🛡️', '⭐', '🏆'];
-        const quotes = [
-          '"Reliable on-chain participant with strong track record."',
-          '"Consistent validator with excellent uptime."',
-          '"Active contributor to the Stellar ecosystem."',
-        ];
-        const weights = ['+10', '+15', '+6'];
 
         return {
           id: tx.hash,
           address: shortAddr,
-          quote: quotes[i % quotes.length],
+          quote: tx.memo
+            ? `"${tx.memo}"`
+            : `"Reputation action on ledger #${tx.ledger}"`,
           time: new Date(tx.createdAt).toLocaleDateString(),
           badge: badgeTypes[i % badgeTypes.length],
           icon: icons[i % icons.length],
-          weight: weights[i % weights.length],
+          weight: '+1',
         };
       });
   }, [transactions]);
