@@ -3,7 +3,7 @@
   <p><b>Stellar On-Chain Reputation System: Trust is earned. Reputation is proof.</b></p>
 
   <a href="https://d-app-reputation-system-xmjy.vercel.app"><img src="https://img.shields.io/badge/🚀_Live_Demo-Visit_App-00e5ff?style=for-the-badge" /></a>
-  <a href="https://drive.google.com/file/d/1hmRtNW-MiJ7Epk8dBr604tM1m6JKnlWc/view?usp=drive_link"><img src="https://img.shields.io/badge/🎬_Demo_Video-Watch_Now-ff4081?style=for-the-badge" /></a>
+  <a href="https://drive.google.com/file/d/1txrpm3KzmnMPw_ziM69p6M5Kz65_RoxP/view?usp=drive_link"><img src="https://img.shields.io/badge/🎬_Demo_Video-Watch_Now-ff4081?style=for-the-badge" /></a>
   <a href="https://github.com/jayjit-2025/dApp-Reputation-System/actions"><img src="https://github.com/jayjit-2025/dApp-Reputation-System/actions/workflows/ci.yml/badge.svg" alt="CI Pipeline" /></a>
 
   <img src="https://img.shields.io/badge/React-black?style=for-the-badge&logo=react&logoColor=white" />
