@@ -160,12 +160,24 @@ const DashboardPage = () => {
     }
 
     return transactions.slice(0, 5).map((tx, i) => {
-      const shortAddr = `${tx.sourceAccount.slice(0, 5)}...${tx.sourceAccount.slice(-4)}`;
       const dots = ['activity-dot-cyan', 'activity-dot-green', 'activity-dot-purple'];
+      let desc = 'Reputation action recorded';
+      let targetShort = tx.sourceAccount ? `${tx.sourceAccount.slice(0, 5)}...${tx.sourceAccount.slice(-4)}` : 'Unknown';
+
+      if (tx.memo && typeof tx.memo === 'string' && tx.memo.startsWith('endorse:')) {
+        const target = tx.memo.split(':')[1];
+        if (target && target.length > 8) {
+          targetShort = `${target.slice(0, 5)}...${target.slice(-4)}`;
+        }
+        desc = `Endorsed [${targetShort}]`;
+      } else if (tx.operationCount > 0) {
+        desc = `Reputation action recorded`;
+      }
+
       return {
         id: tx.hash,
-        address: shortAddr,
-        description: tx.memo ? `Memo: ${tx.memo}` : `Transaction processed with ${tx.operationCount} operation(s)`,
+        address: targetShort,
+        description: desc,
         dotClass: dots[i % dots.length],
         time: new Date(tx.createdAt).toLocaleDateString(),
       };

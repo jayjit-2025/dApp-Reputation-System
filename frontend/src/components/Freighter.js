@@ -210,8 +210,11 @@ const fetchOnChainScore = async (address) => {
     // Since get_score only reads state, we can simulate to get the result
     const simResult = await rpcServer.simulateTransaction(prepared);
     if (simResult && simResult.result && simResult.result.retval) {
-      return StellarSdk.scValToNative(simResult.result.retval);
+      const rawValue = StellarSdk.scValToNative(simResult.result.retval);
+      console.log(`[Score Fetch] Address: ${address} | Raw RetVal:`, simResult.result.retval, `| Parsed Score:`, rawValue);
+      return rawValue;
     }
+    console.log(`[Score Fetch] Address: ${address} | No valid retval found in simulation. Falling back to 0.`);
     return 0;
   } catch (e) {
     console.error("fetchOnChainScore error:", e);
