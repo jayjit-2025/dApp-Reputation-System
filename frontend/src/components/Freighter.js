@@ -237,16 +237,25 @@ const fetchOnChainScore = async (address) => {
       .setTimeout(30)
       .build();
 
-    // Simulate the ORIGINAL transaction directly.
-    // DO NOT call prepareTransaction first — it internally simulates and modifies
-    // the TX, so double-simulating returns wrong values (e.g. 1 instead of real score).
     const simResult = await rpcServer.simulateTransaction(tx);
-    console.log(`[Score Fetch] Raw simulation result:`, JSON.stringify(simResult.result));
-    if (simResult && simResult.result && simResult.result.retval) {
+    console.log(`[Score Fetch] simResult keys:`, Object.keys(simResult));
+    console.log(`[Score Fetch] simResult.result:`, simResult.result);
+
+    // Try SDK parsed path first
+    if (simResult?.result?.retval) {
       const rawValue = StellarSdk.scValToNative(simResult.result.retval);
       console.log(`[Score Fetch] Address: ${address} | Parsed Score: ${rawValue}`);
       return typeof rawValue === 'number' ? rawValue : Number(rawValue);
     }
+
+    // Fallback: try raw RPC response path (results[0].xdr)
+    if (simResult?.results?.[0]?.xdr) {
+      const scVal = StellarSdk.xdr.ScVal.fromXDR(simResult.results[0].xdr, 'base64');
+      const rawValue = StellarSdk.scValToNative(scVal);
+      console.log(`[Score Fetch] Address: ${address} | Parsed Score (from xdr): ${rawValue}`);
+      return typeof rawValue === 'number' ? rawValue : Number(rawValue);
+    }
+
     console.warn(`[Score Fetch] Address: ${address} | No retval in simulation`);
     return 0;
   } catch (e) {
@@ -275,14 +284,25 @@ const fetchEndorsementCount = async (address) => {
       .setTimeout(30)
       .build();
 
-    // Simulate the ORIGINAL transaction directly
     const simResult = await rpcServer.simulateTransaction(tx);
-    console.log(`[Endorsement Count] Raw simulation result:`, JSON.stringify(simResult.result));
-    if (simResult && simResult.result && simResult.result.retval) {
+    console.log(`[Endorsement Count] simResult keys:`, Object.keys(simResult));
+    console.log(`[Endorsement Count] simResult.result:`, simResult.result);
+
+    // Try SDK parsed path first
+    if (simResult?.result?.retval) {
       const rawValue = StellarSdk.scValToNative(simResult.result.retval);
       console.log(`[Endorsement Count] Address: ${address} | Count: ${rawValue}`);
       return typeof rawValue === 'number' ? rawValue : Number(rawValue);
     }
+
+    // Fallback: try raw RPC response path
+    if (simResult?.results?.[0]?.xdr) {
+      const scVal = StellarSdk.xdr.ScVal.fromXDR(simResult.results[0].xdr, 'base64');
+      const rawValue = StellarSdk.scValToNative(scVal);
+      console.log(`[Endorsement Count] Address: ${address} | Count (from xdr): ${rawValue}`);
+      return typeof rawValue === 'number' ? rawValue : Number(rawValue);
+    }
+
     console.warn(`[Endorsement Count] Address: ${address} | No retval`);
     return 0;
   } catch (e) {
