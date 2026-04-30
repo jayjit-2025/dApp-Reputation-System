@@ -6,8 +6,10 @@ import {
   fetchAccountData,
   fetchOnChainScore,
   fetchEndorsementCount,
+  fetchEndorsementEvents,
   server,
 } from '../components/Freighter';
+import * as StellarSdk from "@stellar/stellar-sdk";
 
 const ScoreRingSmall = ({ score, size = 100, strokeWidth = 6 }) => {
   const radius = (size - strokeWidth) / 2;
@@ -62,6 +64,7 @@ const LookupPage = () => {
   const [transactions, setTransactions] = useState([]);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [endorsementEvents, setEndorsementEvents] = useState([]);
 
   const performSearch = async (addressToSearch) => {
     if (!addressToSearch) return;
@@ -69,6 +72,7 @@ const LookupPage = () => {
     // Bug 4 fix: Clear ALL previous state before starting new search
     setWalletData(null);
     setTransactions([]);
+    setEndorsementEvents([]);
     setError('');
     setLoading(true);
     setSearched(true);
@@ -79,14 +83,15 @@ const LookupPage = () => {
         throw new Error('Invalid Stellar address format. Must start with G and be 56 characters.');
       }
 
-      const [txs, data, onChainScore, endorsementCount] = await Promise.all([
+      const [txs, data, onChainScore, endorsementCount, events] = await Promise.all([
         fetchRecentTransactions(addressToSearch, 20),
         fetchAccountData(addressToSearch),
         fetchOnChainScore(addressToSearch),
         fetchEndorsementCount(addressToSearch),
+        fetchEndorsementEvents(addressToSearch),
       ]);
 
-      console.log(`[Lookup] Address: ${addressToSearch} | Score: ${onChainScore} | Endorsements: ${endorsementCount} | Transactions: ${txs.length}`);
+      console.log(`[Lookup] Address: ${addressToSearch} | Score: ${onChainScore} | Endorsements: ${endorsementCount} | Events: ${events.length} | Transactions: ${txs.length}`);
 
       // Also try to load the account for basic info
       let accountInfo = null;
@@ -104,6 +109,7 @@ const LookupPage = () => {
         endorsementCount: endorsementCount,
       });
       setTransactions(txs);
+      setEndorsementEvents(events);
     } catch (err) {
       console.error('[Lookup] Search failed:', err);
       setError(err.message || 'Failed to look up wallet');
@@ -153,35 +159,53 @@ const LookupPage = () => {
     return { totalEndorsements, score, standing, badge };
   }, [walletData]);
 
-  // Build endorsement history from transactions
-  // Bug 2 fix: Soroban invokeHostFunction transactions do NOT have memos.
-  // The old code filtered by tx.memo.includes('endorse') which removed ALL real txs.
-  // Now we show all transactions — they are all contract interactions.
+  // Build endorsement history from Soroban events (filtered by target wallet)
+  // This correctly shows endorsements RECEIVED by this wallet, not sent by it.
   const endorsementHistory = useMemo(() => {
-    if (!transactions.length) {
-      return []; // No fake data — show real empty state
+    if (!endorsementEvents.length) {
+      console.log('[Lookup] No endorsement events found for this wallet');
+      return [];
     }
 
-    return transactions
-      .slice(0, 10)
-      .map((tx, i) => {
-        const shortAddr = `${tx.sourceAccount.slice(0, 4)}...${tx.sourceAccount.slice(-4)}`;
-        const badgeTypes = ['vouch', 'top-tier', 'active'];
-        const icons = ['🛡️', '⭐', '🏆'];
+    return endorsementEvents.map((evt, i) => {
+      let senderAddr = 'Unknown';
+      let category = 'Endorsement';
+      let points = 1;
 
-        return {
-          id: tx.hash,
-          address: shortAddr,
-          quote: tx.memo
-            ? `"${tx.memo}"`
-            : `"Reputation action on ledger #${tx.ledger}"`,
-          time: new Date(tx.createdAt).toLocaleDateString(),
-          badge: badgeTypes[i % badgeTypes.length],
-          icon: icons[i % icons.length],
-          weight: '+1',
-        };
-      });
-  }, [transactions]);
+      try {
+        // topic[2] is sender address (from contract: ("endorse", target, sender))
+        if (evt.topic && evt.topic[2]) {
+          const sender = StellarSdk.scValToNative(StellarSdk.xdr.ScVal.fromXDR(evt.topic[2], "base64"));
+          senderAddr = `${sender.slice(0, 5)}...${sender.slice(-4)}`;
+        }
+        // value is (category, points_added)
+        if (evt.value) {
+          const valArray = StellarSdk.scValToNative(StellarSdk.xdr.ScVal.fromXDR(evt.value, "base64"));
+          if (Array.isArray(valArray)) {
+            category = valArray[0];
+            points = valArray[1];
+          } else {
+            category = valArray;
+          }
+        }
+      } catch (e) {
+        console.error('[Lookup] Error parsing event:', e);
+      }
+
+      const badgeTypes = ['vouch', 'top-tier', 'active'];
+      const icons = ['🛡️', '⭐', '🏆'];
+
+      return {
+        id: evt.id || `evt-${i}`,
+        address: senderAddr,
+        quote: `"Endorsed for ${category}"`,
+        time: `Ledger ${evt.ledger}`,
+        badge: badgeTypes[i % badgeTypes.length],
+        icon: icons[i % icons.length],
+        weight: `+${points}`,
+      };
+    });
+  }, [endorsementEvents]);
 
   // Shorten the displayed address
   const displayAddr = walletData?.address
@@ -273,7 +297,7 @@ const LookupPage = () => {
               <div className="lookup-identity-stats">
                 <div>
                   <div className="section-label">Total Endorsements</div>
-                  <div className="dash-stat-value text-cyan">{endorsementHistory.length}</div>
+                  <div className="dash-stat-value text-cyan">{stats.totalEndorsements}</div>
                 </div>
                 <div>
                   <div className="section-label">Network Standing</div>

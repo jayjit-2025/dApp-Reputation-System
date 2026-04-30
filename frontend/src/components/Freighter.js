@@ -137,7 +137,7 @@ const submitEndorsement = async (senderPubKey, targetAddress, category) => {
 const fetchSorobanEvents = async () => {
     try {
         const currentLedger = await rpcServer.getLatestLedger();
-        const startLedger = Math.max(1, currentLedger.sequence - 5000); // Past ~7 hours
+        const startLedger = Math.max(1, currentLedger.sequence - 17280); // Past ~24 hours
         const events = await rpcServer.getEvents({
             startLedger,
             filters: [
@@ -154,6 +154,36 @@ const fetchSorobanEvents = async () => {
         return events.events || [];
     } catch (e) {
         console.error("fetchSorobanEvents error:", e);
+        return [];
+    }
+};
+
+// Fetch endorsement events for a SPECIFIC target wallet address
+const fetchEndorsementEvents = async (targetAddress) => {
+    try {
+        console.log(`[Endorsement Events] Fetching events for target: ${targetAddress}`);
+        const currentLedger = await rpcServer.getLatestLedger();
+        const startLedger = Math.max(1, currentLedger.sequence - 17280); // Past ~24 hours
+        const targetScVal = StellarSdk.nativeToScVal(targetAddress, { type: "address" }).toXDR("base64");
+        const events = await rpcServer.getEvents({
+            startLedger,
+            filters: [
+                {
+                    type: "contract",
+                    contractIds: [CONTRACT_ID],
+                    topics: [
+                       [StellarSdk.nativeToScVal("endorse", { type: "symbol" }).toXDR("base64")],
+                       [targetScVal]
+                    ]
+                }
+            ],
+            limit: 20
+        });
+        const result = events.events || [];
+        console.log(`[Endorsement Events] Found ${result.length} events for ${targetAddress}`);
+        return result;
+    } catch (e) {
+        console.error("[Endorsement Events] Error:", e);
         return [];
     }
 };
@@ -270,6 +300,7 @@ export {
   fetchRecentTransactions,
   fetchAccountData,
   fetchSorobanEvents,
+  fetchEndorsementEvents,
   fetchOnChainScore,
   fetchEndorsementCount,
   server,
