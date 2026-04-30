@@ -314,11 +314,33 @@ cargo build --target wasm32-unknown-unknown --release  # Build WASM
 
 ## 🎬 Demo Video
 
-[![Watch Demo](https://img.shields.io/badge/▶_Watch_Demo_Video-Google_Drive-ff4081?style=for-the-badge&logo=google-drive&logoColor=white)](https://drive.google.com/file/d/1hmRtNW-MiJ7Epk8dBr604tM1m6JKnlWc/view?usp=drive_link)
+[![Watch Demo](https://img.shields.io/badge/▶_Watch_Demo_Video-Google_Drive-ff4081?style=for-the-badge&logo=google-drive&logoColor=white)](https://drive.google.com/file/d/1txrpm3KzmnMPw_ziM69p6M5Kz65_RoxP/view?usp=drive_link)
 
 ---
 
 ## 👨‍💻 Author
 **Jayjit Dutta**
 - Building on Stellar — Trust is earned. Reputation is proof.
-- [GitHub](https://github.com/jayjit-2025) · [Live App](https://d-app-reputation-system-xmjy.vercel.app) · [Demo Video](https://drive.google.com/file/d/1hmRtNW-MiJ7Epk8dBr604tM1m6JKnlWc/view?usp=drive_link)
+- [GitHub](https://github.com/jayjit-2025) · [Live App](https://d-app-reputation-system-xmjy.vercel.app) · [Demo Video](https://drive.google.com/file/d/1txrpm3KzmnMPw_ziM69p6M5Kz65_RoxP/view?usp=drive_link)
+
+---
+
+## 👥 User Validation & Feedback
+
+> **Feedback Responses Source:** [Google Sheet (Live)](https://docs.google.com/spreadsheets/d/1mgM0yE0Ffnw-42-k_rxMmWza9Ka2Huh-YIO9bpQuyWE/edit?usp=sharing)
+
+### 📋 Table 1: Verified Real Testnet Users
+
+| User Name | User Email | User Wallet Address |
+|:---|:---|:---|
+| Sohan Sarkar | sohansarkar13102025@gmail.com | `GCD7XGNCLHDO26GCFMLNA44ZQUIKV6RMH6LXKD3KZ67R2GWWOT3OOJ22` |
+| Aabir Manik | manikaabir6@gmail.com | `GBHIOIJPDDWZ7NPPPSOPE6YKJYVXJMOVB4GRHNVTQGSIIWHHV76PMDBO` |
+| Ranit Sarkar | sarkarranit050@gmail.com | `GAKRKYDMLFMXDYJAD3VYKDFYZGPACZZ4GDCAG5DWQSLQ5WQIZK6KZ4AD` |
+| Ankush Shaw | ankushshaw764@gmail.com | `GBBIG4HLPGTLG6BH6YREVWJXEQ4NX74HTD444JD6A6XYS7DOFL2J6DEI` |
+| Subhadip Dutta | subhadipduttads@gmail.com | `GAVNLCS3GSWLKXSLZ3ITSL7QNB5IGHEOELXAF6QTYACDLEJ7XRQKBBNO` |
+
+---
+
+## 🔗 User Feedback Link
+
+[https://docs.google.com/spreadsheets/d/1mgM0yE0Ffnw-42-k_rxMmWza9Ka2Huh-YIO9bpQuyWE/edit?usp=sharing](https://docs.google.com/spreadsheets/d/1mgM0yE0Ffnw-42-k_rxMmWza9Ka2Huh-YIO9bpQuyWE/edit?usp=sharing)
