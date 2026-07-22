@@ -133,7 +133,7 @@ The architecture ensures data integrity:
 
 ## 🧪 Test Suite
 
-The Soroban smart contract has **4 passing unit tests** covering all 3 custom error types:
+The Soroban smart contract has **5 passing unit tests** covering all contract functions and both custom error types:
 
 ```bash
 # Run all contract tests
@@ -143,12 +143,13 @@ cargo test
 
 | Test | Scenario | Result | Verified Behaviour |
 |:---|:---|:---:|:---|
-| `test_successful_endorsement` | Valid endorsement | ✅ PASS | Endorsement stored & event emitted |
+| `test_successful_endorsement` | Valid single endorsement | ✅ PASS | Endorsement stored, score incremented, count incremented |
+| `test_successful_endorsement_and_multiplier` | Multiplier chain (A→B→C) | ✅ PASS | Weight applied correctly at 0.1x for score 0 endorsers |
+| `test_score_accumulates_across_multiple_endorsers` | 3 independent senders endorse same target | ✅ PASS | Score = 3, count = 3 after three separate endorsements |
 | `test_self_endorsement_not_allowed` | Endorsing own address | ✅ PASS | Contract throws Error #1 (`SelfEndorsementNotAllowed`) as expected |
-| `test_invalid_score_range` | Score > 1000 | ✅ PASS | Contract throws Error #2 (`InvalidScoreRange`) as expected |
-| `test_already_endorsed` | Duplicate endorsement | ✅ PASS | Contract throws Error #3 (`AlreadyEndorsed`) as expected |
+| `test_already_endorsed` | Duplicate endorsement from same sender | ✅ PASS | Contract throws Error #2 (`AlreadyEndorsed`) as expected |
 
-> **Result**: `4 passed; 0 failed` — Tests 2–4 use `#[should_panic]`, meaning they **pass** when the contract correctly rejects invalid inputs.
+> **Result**: `5 passed; 0 failed` — The last two tests use `#[should_panic]`, meaning they **pass** when the contract correctly rejects invalid inputs.
 
 ### 📸 Test Output Proof
 
@@ -160,7 +161,7 @@ cargo test
 ## ⚙️ CI/CD Pipeline
 
 This project uses **GitHub Actions** for continuous integration. Every push to `main` automatically:
-- ✅ Runs all 4 Soroban contract unit tests (`cargo test`)
+- ✅ Runs all 5 Soroban contract unit tests (`cargo test`)
 - ✅ Builds the production React bundle (`npm run build`)
 
 ### 📸 CI/CD Pipeline Screenshot
