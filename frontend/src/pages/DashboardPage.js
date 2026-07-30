@@ -63,6 +63,31 @@ const DashboardPage = () => {
   const [editReview, setEditReview] = useState('');
   const [actionMessage, setActionMessage] = useState(null);
 
+  const handleRevoke = async (targetAddr) => {
+    if (!publicKey) return;
+    if (!window.confirm("Are you sure you want to revoke this on-chain endorsement? Points will be deducted from the target.")) return;
+    setActionMessage({ type: 'info', text: 'Submitting revocation transaction to Soroban network...' });
+    const res = await revokeEndorsement(publicKey, targetAddr);
+    if (res.success) {
+      setActionMessage({ type: 'success', text: `Endorsement revoked successfully! Hash: ${res.hash.slice(0, 8)}...` });
+    } else {
+      setActionMessage({ type: 'error', text: `Revocation failed: ${res.error}` });
+    }
+  };
+
+  const handleUpdateSubmit = async (e) => {
+    e.preventDefault();
+    if (!editingItem || !publicKey) return;
+    setActionMessage({ type: 'info', text: 'Submitting update transaction to Soroban network...' });
+    const res = await updateEndorsement(publicKey, editingItem.target, editCategory, editReview);
+    if (res.success) {
+      setActionMessage({ type: 'success', text: `Endorsement updated on-chain! Hash: ${res.hash.slice(0, 8)}...` });
+      setEditingItem(null);
+    } else {
+      setActionMessage({ type: 'error', text: `Update failed: ${res.error}` });
+    }
+  };
+
   useEffect(() => {
     if (!connected || !publicKey) return;
 
