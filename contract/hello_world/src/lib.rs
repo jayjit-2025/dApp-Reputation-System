@@ -140,6 +140,35 @@ impl ReputationContract {
         Ok(())
     }
 
+    pub fn update_endorsement(
+        env: Env,
+        sender: Address,
+        target: Address,
+        new_category: String,
+        new_review: String,
+    ) -> Result<(), Error> {
+        sender.require_auth();
+
+        let key = EndorsementKey { target: target.clone(), sender: sender.clone() };
+        let mut endorsement: Endorsement = match env.storage().persistent().get(&key) {
+            Some(e) => e,
+            None => return Err(Error::EndorsementNotFound),
+        };
+
+        if !endorsement.active {
+            return Err(Error::AlreadyRevoked);
+        }
+
+        endorsement.category = new_category.clone();
+        endorsement.review = new_review;
+        env.storage().persistent().set(&key, &endorsement);
+
+        // Publish event
+        env.events().publish((symbol_short!("update"), target, sender), new_category);
+
+        Ok(())
+    }
+
     pub fn get_endorsement(env: Env, target: Address, sender: Address) -> Option<Endorsement> {
         let key = EndorsementKey { target, sender };
         env.storage().persistent().get(&key)
