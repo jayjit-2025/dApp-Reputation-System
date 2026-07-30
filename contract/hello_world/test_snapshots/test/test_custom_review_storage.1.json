@@ -21,10 +21,10 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
                 },
                 {
-                  "string": "Liquidity Provider"
+                  "string": "Community Contribution"
                 },
                 {
-                  "string": "Great work!"
+                  "string": "Excellent developer! High code quality."
                 }
               ]
             }
@@ -254,7 +254,7 @@
                         "symbol": "category"
                       },
                       "val": {
-                        "string": "Liquidity Provider"
+                        "string": "Community Contribution"
                       }
                     },
                     {
@@ -262,7 +262,7 @@
                         "symbol": "review"
                       },
                       "val": {
-                        "string": "Great work!"
+                        "string": "Excellent developer! High code quality."
                       }
                     },
                     {
