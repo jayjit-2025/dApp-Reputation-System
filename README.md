@@ -4,7 +4,8 @@
 
   <a href="https://d-app-reputation-system-xmjy.vercel.app"><img src="https://img.shields.io/badge/🚀_Live_Demo-Visit_App-00e5ff?style=for-the-badge" /></a>
   <a href="https://drive.google.com/file/d/1txrpm3KzmnMPw_ziM69p6M5Kz65_RoxP/view?usp=drive_link"><img src="https://img.shields.io/badge/🎬_Demo_Video-Watch_Now-ff4081?style=for-the-badge" /></a>
-  <a href="https://github.com/jayjit-2025/dApp-Reputation-System/actions"><img src="https://github.com/jayjit-2025/dApp-Reputation-System/actions/workflows/ci.yml/badge.svg" alt="CI Pipeline" /></a>
+  <a href="https://github.com/jayjit-2025/dApp-Reputation-System/actions"><img src="https://github.com/jayjit-2025/dApp-Reputation-System/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI Pipeline Status" /></a>
+  <a href="https://d-app-reputation-system-xmjy.vercel.app"><img src="https://img.shields.io/badge/Vercel_CD-Passing_&_Deployed-00e676?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel CD Status" /></a>
 
   <img src="https://img.shields.io/badge/React-black?style=for-the-badge&logo=react&logoColor=white" />
   <img src="https://img.shields.io/badge/Stellar-E84142?style=for-the-badge&logo=stellar&logoColor=white" />
@@ -354,6 +355,18 @@ A **Copy Link** button was added to the Lookup page. When someone opens a shared
 - Score momentum trend
 
 **Impact:** Anyone — with or without a Stellar wallet or crypto knowledge — can view a reputation profile by simply opening a link. This extends RepuTE's utility far beyond the Web3 ecosystem into practical real-world use cases like freelancer profiles, employer verification, and community trust layers.
+
+---
+
+## 🔄 CI/CD Pipeline & Continuous Deployment
+
+The repository uses automated GitHub Actions CI and Vercel CD pipelines to maintain software quality and zero-downtime deployment:
+
+| Pipeline Job | Target | Status | Engine |
+| :--- | :--- | :---: | :--- |
+| **Soroban Smart Contract Tests** | `contract/hello_world` | [![CI Pipeline](https://github.com/jayjit-2025/dApp-Reputation-System/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/jayjit-2025/dApp-Reputation-System/actions) | Rust (`cargo test` - 9/9 Passed) |
+| **Frontend Build & ESLint** | `frontend` | [![CI Pipeline](https://github.com/jayjit-2025/dApp-Reputation-System/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/jayjit-2025/dApp-Reputation-System/actions) | Node.js 18 (`react-scripts build`) |
+| **Vercel Production Deployment** | `frontend/build` | [![Vercel CD](https://img.shields.io/badge/Vercel_CD-Passing_&_Deployed-00e676?style=flat&logo=vercel&logoColor=white)](https://d-app-reputation-system-xmjy.vercel.app) | Vercel Edge Global CDN |
 
 ---
 
