@@ -14,7 +14,8 @@
     "react-dom": "^19.2.4",
     "react-router-dom": "^7.13.1",
     "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "cross-env": "^7.0.3"
   },
   "scripts": {
     "start": "cross-env HTTPS=true react-scripts start",
@@ -41,7 +42,6 @@
     ]
   },
   "devDependencies": {
-    "cross-env": "^7.0.3",
     "postcss": "^8.5.8"
   }
 }
