@@ -7,6 +7,8 @@ use soroban_sdk::{contract, contractimpl, contracterror, contracttype, symbol_sh
 pub enum Error {
     SelfEndorsementNotAllowed = 1,
     AlreadyEndorsed = 2,
+    EndorsementNotFound = 3,
+    AlreadyRevoked = 4,
 }
 
 #[contracttype]
@@ -98,6 +100,42 @@ impl ReputationContract {
 
         // Publish event with both category and points_added
         env.events().publish((symbol_short!("endorse"), target, sender), (category, points_added));
+
+        Ok(())
+    }
+
+    pub fn revoke_endorsement(
+        env: Env,
+        sender: Address,
+        target: Address,
+    ) -> Result<(), Error> {
+        sender.require_auth();
+
+        let key = EndorsementKey { target: target.clone(), sender: sender.clone() };
+        let mut endorsement: Endorsement = match env.storage().persistent().get(&key) {
+            Some(e) => e,
+            None => return Err(Error::EndorsementNotFound),
+        };
+
+        if !endorsement.active {
+            return Err(Error::AlreadyRevoked);
+        }
+
+        endorsement.active = false;
+        env.storage().persistent().set(&key, &endorsement);
+
+        // Deduct points from target's total score
+        let target_score_key = DataKey::TotalScore(target.clone());
+        let mut current_target_score: u32 = env.storage().persistent().get(&target_score_key).unwrap_or(0);
+        if current_target_score >= endorsement.weight_applied {
+            current_target_score -= endorsement.weight_applied;
+        } else {
+            current_target_score = 0;
+        }
+        env.storage().persistent().set(&target_score_key, &current_target_score);
+
+        // Publish event
+        env.events().publish((symbol_short!("revoke"), target, sender), endorsement.weight_applied);
 
         Ok(())
     }
