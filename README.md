@@ -37,7 +37,10 @@
 
 RepuTE features a high-density **Sovereign Ledger Aesthetic**, built for maximum clarity and institutional trust.
 
-### ✨ Key New Features
+### ✨ Key New Features (v2.1 Upgrade)
+- ✍️ **Custom Review Memos**: Attach cryptographic text reviews directly to on-chain endorsements.
+- 🔄 **Revocation & Update Engine**: Edit or revoke previous endorsements directly from your dashboard outbox.
+- ⏳ **Time-Decay Reputation Algorithm**: On-chain scoring automatically applies a time-decay factor to older endorsements.
 - 🌘 **"True Black" Design System**: Deep slate surfaces with cyan glow accents for high-end readability.
 - ⭕ **Animated Score Index**: A real-time reputation ring that scales visually as trust fragments are added on-chain.
 - ⚡ **Freighter-Native Integration**: One-click authentication and transaction signing directly from the landing page.
