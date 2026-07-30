@@ -405,11 +405,31 @@ The repository uses automated GitHub Actions CI and Vercel CD pipelines to maint
 
 ---
 
-## 👥 User Validation & Feedback
+## 👥 Level 5 Blue Belt User Onboarding and Feedback
 
-> **Feedback Responses Source:** [Google Sheet (Live)](https://docs.google.com/spreadsheets/d/1mgM0yE0Ffnw-42-k_rxMmWza9Ka2Huh-YIO9bpQuyWE/edit?usp=sharing)
+We collect comprehensive user onboarding feedback including wallet addresses, email IDs, user names, ratings, and feature suggestions via our dedicated Google Form:
 
-### 📋 Table 1: Verified Real Testnet Users
+### 📝 [Google Form — User Feedback Collection](https://docs.google.com/spreadsheets/d/1mgM0yE0Ffnw-42-k_rxMmWza9Ka2Huh-YIO9bpQuyWE/edit?usp=sharing)
+> **Fields Collected:**
+> - **Full Name**
+> - **Email Address**
+> - **Stellar Wallet Address**
+> - **Product Rating** (1–5 stars)
+> - **Feedback / Feature Requests**
+
+---
+
+### 📊 [Exported User Responses Sheet](https://docs.google.com/spreadsheets/d/1fQ2C87wEhySW1UtPiiFuh_STCdFVW3oXbsrkQjbKHkM/edit?usp=sharing)
+View live aggregated feedback responses, rating distribution, and feature requests submitted by active testnet users.
+
+---
+
+### 📽️ [Project Presentation Deck](https://docs.google.com/presentation/d/1nWHaNH5s3IxIevrWxxXecDBAD866vQAS1zN7mwVbjCM/edit?usp=sharing)
+Explore the complete RepuTE architecture, Soroban smart contract protocol design, workflows, market strategy, and 12-slide pitch deck presentation.
+
+---
+
+### 📋 Verified Real Testnet Users Table
 
 | User Name | User Email | User Wallet Address |
 |:---|:---|:---|
@@ -421,6 +441,8 @@ The repository uses automated GitHub Actions CI and Vercel CD pipelines to maint
 
 ---
 
-## 🔗 User Feedback Link
+## 🔗 Quick Resource Links
 
-[https://docs.google.com/spreadsheets/d/1mgM0yE0Ffnw-42-k_rxMmWza9Ka2Huh-YIO9bpQuyWE/edit?usp=sharing](https://docs.google.com/spreadsheets/d/1mgM0yE0Ffnw-42-k_rxMmWza9Ka2Huh-YIO9bpQuyWE/edit?usp=sharing)
+- 📝 [User Feedback Form](https://docs.google.com/spreadsheets/d/1mgM0yE0Ffnw-42-k_rxMmWza9Ka2Huh-YIO9bpQuyWE/edit?usp=sharing)
+- 📊 [Exported User Responses](https://docs.google.com/spreadsheets/d/1fQ2C87wEhySW1UtPiiFuh_STCdFVW3oXbsrkQjbKHkM/edit?usp=sharing)
+- 📽️ [Project Presentation Deck](https://docs.google.com/presentation/d/1nWHaNH5s3IxIevrWxxXecDBAD866vQAS1zN7mwVbjCM/edit?usp=sharing)
