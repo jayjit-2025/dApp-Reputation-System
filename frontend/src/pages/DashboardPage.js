@@ -1,7 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useWallet } from '../context/WalletContext';
-import { fetchRecentTransactions, fetchAccountData, fetchSorobanEvents, fetchOnChainScore } from '../components/Freighter';
+import {
+  fetchRecentTransactions,
+  fetchAccountData,
+  fetchSorobanEvents,
+  fetchOnChainScore,
+  revokeEndorsement,
+  updateEndorsement,
+} from '../components/Freighter';
+import SpecializationBadges from '../components/Badges';
 import * as StellarSdk from "@stellar/stellar-sdk";
 const ScoreRing = ({ score, size = 200, strokeWidth = 8 }) => {
   const radius = (size - strokeWidth) / 2;
@@ -49,6 +57,7 @@ const DashboardPage = () => {
   const [sorobanEvents, setSorobanEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [reputationScore, setReputationScore] = useState(0);
+  const [activeTab, setActiveTab] = useState('received'); // 'received' | 'given'
 
   useEffect(() => {
     if (!connected || !publicKey) return;
@@ -294,10 +303,45 @@ const DashboardPage = () => {
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                marginBottom: 12,
+                marginBottom: 16,
+                borderBottom: '1px solid var(--border-default)',
+                paddingBottom: 12,
               }}
             >
-              <div style={{ fontSize: 14, fontWeight: 600 }}>Recent Activity</div>
+              <div style={{ display: 'flex', gap: 16 }}>
+                <button
+                  onClick={() => setActiveTab('received')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: activeTab === 'received' ? 'var(--cyan)' : 'var(--text-secondary)',
+                    fontWeight: activeTab === 'received' ? 600 : 400,
+                    fontSize: 14,
+                    cursor: 'pointer',
+                    padding: 0,
+                    borderBottom: activeTab === 'received' ? '2px solid var(--cyan)' : 'none',
+                    paddingBottom: 4,
+                  }}
+                >
+                  Recent Activity
+                </button>
+                <button
+                  onClick={() => setActiveTab('given')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: activeTab === 'given' ? 'var(--cyan)' : 'var(--text-secondary)',
+                    fontWeight: activeTab === 'given' ? 600 : 400,
+                    fontSize: 14,
+                    cursor: 'pointer',
+                    padding: 0,
+                    borderBottom: activeTab === 'given' ? '2px solid var(--cyan)' : 'none',
+                    paddingBottom: 4,
+                  }}
+                >
+                  Outbox (Given Endorsements)
+                </button>
+              </div>
               <span className="link-arrow" style={{ fontSize: 11 }}>
                 Export List
               </span>
