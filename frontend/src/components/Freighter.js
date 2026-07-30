@@ -60,7 +60,7 @@ const getBalance = async () => {
   }
 };
 
-const submitEndorsement = async (senderPubKey, targetAddress, category) => {
+const submitEndorsement = async (senderPubKey, targetAddress, category, review = "") => {
   try {
     const account = await server.loadAccount(senderPubKey);
     const contract = new StellarSdk.Contract(CONTRACT_ID);
@@ -74,7 +74,8 @@ const submitEndorsement = async (senderPubKey, targetAddress, category) => {
           "endorse",
           StellarSdk.nativeToScVal(senderPubKey, { type: "address" }),
           StellarSdk.nativeToScVal(targetAddress, { type: "address" }),
-          StellarSdk.nativeToScVal(category, { type: "string" })
+          StellarSdk.nativeToScVal(category, { type: "string" }),
+          StellarSdk.nativeToScVal(review, { type: "string" })
         )
       )
       .setTimeout(120)
@@ -117,14 +118,15 @@ const submitEndorsement = async (senderPubKey, targetAddress, category) => {
   } catch (e) {
     console.error("[WalletKit] submitEndorsement error:", e);
     
-    // Parse the 3 specific errors from simulation/execution
     let errorMsg = e?.message || "Transaction failed";
     if (errorMsg.includes("Error(Contract, #1)")) {
         errorMsg = "Self-endorsement is not allowed.";
     } else if (errorMsg.includes("Error(Contract, #2)")) {
-        errorMsg = "Score must be between 1 and 1000.";
-    } else if (errorMsg.includes("Error(Contract, #3)")) {
         errorMsg = "Wallet is already endorsed by you.";
+    } else if (errorMsg.includes("Error(Contract, #3)")) {
+        errorMsg = "Endorsement record not found.";
+    } else if (errorMsg.includes("Error(Contract, #4)")) {
+        errorMsg = "Endorsement is already revoked.";
     }
 
     return {
