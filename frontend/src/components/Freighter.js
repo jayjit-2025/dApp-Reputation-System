@@ -266,6 +266,26 @@ const fetchOnChainScore = async (address) => {
   }
 };
 
+const fetchDecayedScoreDetails = async (address) => {
+  try {
+    const score = await fetchOnChainScore(address);
+    const count = await fetchEndorsementCount(address);
+    const potentialMax = count * 10;
+    const decayPct = (potentialMax > 0 && score < potentialMax) 
+      ? Math.round(((potentialMax - score) / potentialMax) * 100) 
+      : 0;
+
+    return {
+      activeScore: score,
+      totalEndorsements: count,
+      decayPercentage: Math.max(0, Math.min(100, decayPct)),
+    };
+  } catch (e) {
+    console.error("[DecayedScore] Error:", e);
+    return { activeScore: 0, totalEndorsements: 0, decayPercentage: 0 };
+  }
+};
+
 const fetchEndorsementCount = async (address) => {
   try {
     console.log(`[Endorsement Count] Querying for address: ${address}`);
@@ -442,6 +462,7 @@ export {
   fetchSorobanEvents,
   fetchEndorsementEvents,
   fetchOnChainScore,
+  fetchDecayedScoreDetails,
   fetchEndorsementCount,
   server,
   rpcServer,
