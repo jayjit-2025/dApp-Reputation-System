@@ -370,6 +370,65 @@ const revokeEndorsement = async (senderPubKey, targetAddress) => {
   }
 };
 
+const updateEndorsement = async (senderPubKey, targetAddress, newCategory, newReview = "") => {
+  try {
+    const account = await server.loadAccount(senderPubKey);
+    const contract = new StellarSdk.Contract(CONTRACT_ID);
+
+    const tx = new StellarSdk.TransactionBuilder(account, {
+      fee: StellarSdk.BASE_FEE,
+      networkPassphrase: NETWORK_PASSPHRASE,
+    })
+      .addOperation(
+        contract.call(
+          "update_endorsement",
+          StellarSdk.nativeToScVal(senderPubKey, { type: "address" }),
+          StellarSdk.nativeToScVal(targetAddress, { type: "address" }),
+          StellarSdk.nativeToScVal(newCategory, { type: "string" }),
+          StellarSdk.nativeToScVal(newReview, { type: "string" })
+        )
+      )
+      .setTimeout(120)
+      .build();
+
+    const preparedTransaction = await rpcServer.prepareTransaction(tx);
+    const { signedTxXdr } = await kit.signTransaction(preparedTransaction.toXDR());
+    
+    const signedTx = StellarSdk.TransactionBuilder.fromXDR(signedTxXdr, NETWORK_PASSPHRASE);
+    const result = await rpcServer.sendTransaction(signedTx);
+
+    if (result.status === "ERROR") {
+      throw new Error("Transaction submission failed: " + JSON.stringify(result.errorResultXdr));
+    }
+
+    let txResponse;
+    let attempts = 0;
+    while (attempts < 15) {
+      txResponse = await rpcServer.getTransaction(result.hash);
+      if (txResponse.status !== "NOT_FOUND") {
+        break;
+      }
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      attempts++;
+    }
+
+    if (txResponse && txResponse.status === "SUCCESS") {
+      return {
+        success: true,
+        hash: result.hash,
+      };
+    } else {
+      throw new Error("Contract execution reverted.");
+    }
+  } catch (e) {
+    console.error("[WalletKit] updateEndorsement error:", e);
+    return {
+      success: false,
+      error: e?.message || "Update failed",
+    };
+  }
+};
+
 export {
   connectKitWallet,
   checkConnection,
@@ -377,6 +436,7 @@ export {
   getBalance,
   submitEndorsement,
   revokeEndorsement,
+  updateEndorsement,
   fetchRecentTransactions,
   fetchAccountData,
   fetchSorobanEvents,
