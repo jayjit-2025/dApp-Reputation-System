@@ -441,6 +441,26 @@ Explore the complete RepuTE architecture, Soroban smart contract protocol design
 
 ---
 
+## 📊 User Feedback Summary
+
+Based on direct feedback gathered from active Stellar Testnet users, developers, and ecosystem evaluators, the overall community response to RepuTE v2.1 has been synthesized into the following key insights:
+
+### 🎨 1. User Interface & Performance
+- **Diligent Design & Visual Excellence**: The platform's UI is highly regarded for its diligent design, modern dark-mode aesthetic, and polished layout. Users praise the sleek cyan glowing accents and clean data visualizations.
+- **Reliable Core Feature Execution**: Users confirm that all core protocol features — including issuing attestations, attached review memos, endorsement revocations, inline updates, and ledger polling — function reliably, fast, and effectively.
+- **Seamless Wallet Integration**: Multi-wallet support (Freighter, Albedo, xBull) provides a smooth, frictionless connection experience across different browsers and extensions.
+
+### 📚 2. Documentation & Clarity Needed
+- **Dedicated Docs Page Request**: A significant need exists for a dedicated **"Docs"** page or knowledge base integrated into the dApp to improve user onboarding and provide clearer guidance on the dApp’s functionality, smart contract logic, and real-world use cases.
+- **Explanatory Guidance**: Testers requested expanded step-by-step onboarding guides, interactive tooltips, and clearer visual explanations of the on-chain dynamic time-decay scoring mechanics.
+
+### 🚀 3. Actionable Protocol Enhancements (v2.2 Commitment)
+To address user feedback directly, the following features are actively scheduled for implementation:
+- 📖 **Interactive Documentation Portal (`/docs`)**: A built-in protocol documentation suite covering smart contract architecture, SDK integration, and user guides.
+- 💡 **Onboarding Tooltip System**: Guided walk-through modals assisting new users through their first wallet attestation and score lookup.
+
+---
+
 ## 🔗 Quick Resource Links
 
 - 📝 [User Feedback Form](https://docs.google.com/spreadsheets/d/1mgM0yE0Ffnw-42-k_rxMmWza9Ka2Huh-YIO9bpQuyWE/edit?usp=sharing)
