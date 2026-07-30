@@ -248,6 +248,32 @@ const DashboardPage = () => {
 
   return (
     <div className="animate-in">
+      {actionMessage && (
+        <div
+          className="animate-in"
+          style={{
+            background: actionMessage.type === 'success' ? 'rgba(0, 230, 118, 0.1)' : actionMessage.type === 'error' ? 'rgba(255, 23, 68, 0.1)' : 'rgba(0, 229, 255, 0.1)',
+            border: `1px solid ${actionMessage.type === 'success' ? '#00e676' : actionMessage.type === 'error' ? '#ff1744' : 'var(--cyan)'}`,
+            color: actionMessage.type === 'success' ? '#00e676' : actionMessage.type === 'error' ? '#ff1744' : 'var(--cyan)',
+            padding: '12px 18px',
+            borderRadius: 8,
+            marginBottom: 20,
+            fontSize: 13,
+            display: 'flex',
+            justify: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <span>{actionMessage.text}</span>
+          <button
+            onClick={() => setActionMessage(null)}
+            style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', fontWeight: 700 }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Quick Action Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 28 }}>
         <Link to="/endorse" className="quick-card" style={{ textDecoration: 'none' }}>
