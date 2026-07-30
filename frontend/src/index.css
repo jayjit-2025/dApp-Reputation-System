@@ -4,29 +4,29 @@
 
 :root {
   /* Background */
-  --bg-primary: #0a0e17;
-  --bg-secondary: #0d1321;
-  --bg-card: #111827;
-  --bg-card-hover: #162032;
-  --bg-surface: #1a2332;
-  --bg-input: #0f1a2a;
+  --bg-primary: #05070a;
+  --bg-secondary: #0a0f18;
+  --bg-card: #0e1622;
+  --bg-card-hover: #141e2e;
+  --bg-surface: #182436;
+  --bg-input: #0b121c;
 
   /* Accent */
   --cyan: #00e5ff;
   --cyan-dim: #00b8d4;
-  --cyan-glow: rgba(0, 229, 255, 0.15);
-  --cyan-glow-strong: rgba(0, 229, 255, 0.3);
+  --cyan-glow: rgba(0, 229, 255, 0.18);
+  --cyan-glow-strong: rgba(0, 229, 255, 0.35);
   --teal: #00bfa5;
 
   /* Text */
-  --text-primary: #e8edf5;
-  --text-secondary: #8899aa;
-  --text-muted: #556677;
+  --text-primary: #f0f4f9;
+  --text-secondary: #90a2b6;
+  --text-muted: #5d6e80;
   --text-accent: #00e5ff;
 
   /* Borders */
-  --border-default: #1e2d3d;
-  --border-glow: rgba(0, 229, 255, 0.2);
+  --border-default: #1b293a;
+  --border-glow: rgba(0, 229, 255, 0.25);
 
   /* Status */
   --green: #00e676;
