@@ -16,7 +16,8 @@ fn test_successful_endorsement() {
     let category = String::from_str(&env, "Development Excellence");
 
     // Fresh sender has score 0 → multiplier 0.1x → 1 point added
-    client.endorse(&sender, &target, &category);
+    let review = String::from_str(&env, "Great work!");
+    client.endorse(&sender, &target, &category, &review);
 
     // Endorsement record must exist
     let endorsement = client.get_endorsement(&target, &sender).unwrap();
@@ -45,7 +46,8 @@ fn test_successful_endorsement_and_multiplier() {
 
     // User A has 0 score. Multiplier should be 0.1x → 1 point
     let category = String::from_str(&env, "Test");
-    client.endorse(&user_a, &user_b, &category);
+    let review = String::from_str(&env, "Good");
+    client.endorse(&user_a, &user_b, &category, &review);
 
     let endorsement1 = client.get_endorsement(&user_b, &user_a).unwrap();
     assert_eq!(endorsement1.weight_applied, 1);
@@ -54,7 +56,7 @@ fn test_successful_endorsement_and_multiplier() {
     assert_eq!(score_b, 1); // User B gets 1 point
 
     // User B has 1 point. Multiplier is still 0.1x → 1 point added to C
-    client.endorse(&user_b, &user_c, &category);
+    client.endorse(&user_b, &user_c, &category, &review);
     assert_eq!(client.get_score(&user_c), 1);
 }
 
@@ -72,7 +74,8 @@ fn test_score_accumulates_across_multiple_endorsers() {
     // Three independent senders each with score 0 endorse the same target
     for _ in 0..3 {
         let sender = Address::generate(&env);
-        client.endorse(&sender, &target, &category);
+        let review = String::from_str(&env, "Great work!");
+    client.endorse(&sender, &target, &category, &review);
     }
 
     // Each sender adds 1 point (0.1x multiplier on score 0), total = 3
@@ -92,7 +95,8 @@ fn test_self_endorsement_not_allowed() {
     let sender = Address::generate(&env);
     let category = String::from_str(&env, "Community Contribution");
 
-    client.endorse(&sender, &sender, &category);
+    let review = String::from_str(&env, "Self");
+    client.endorse(&sender, &sender, &category, &review);
 }
 
 #[test]
@@ -109,7 +113,9 @@ fn test_already_endorsed() {
     let category = String::from_str(&env, "Liquidity Provider");
 
     // First endorsement succeeds
-    client.endorse(&sender, &target, &category);
+    let review = String::from_str(&env, "Great work!");
+    client.endorse(&sender, &target, &category, &review);
     // Second endorsement from the same sender must panic with AlreadyEndorsed (#2)
-    client.endorse(&sender, &target, &category);
+    let review = String::from_str(&env, "Great work!");
+    client.endorse(&sender, &target, &category, &review);
 }
