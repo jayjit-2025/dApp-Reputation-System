@@ -1,5 +1,5 @@
 #![no_std]
-use soroban_sdk::{contract, contractimpl, contracterror, contracttype, symbol_short, Address, Env, String};
+use soroban_sdk::{contract, contractimpl, contracterror, contracttype, symbol_short, Address, Env, String, Vec};
 
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
@@ -34,6 +34,7 @@ pub struct Endorsement {
 pub enum DataKey {
     TotalScore(Address),
     EndorsementCount(Address),
+    Endorsers(Address),
 }
 
 #[contract]
@@ -98,10 +99,41 @@ impl ReputationContract {
         count += 1;
         env.storage().persistent().set(&count_key, &count);
 
+        // Add sender to endorsers list
+        let endorsers_key = DataKey::Endorsers(target.clone());
+        let mut endorsers: Vec<Address> = env.storage().persistent().get(&endorsers_key).unwrap_or(Vec::new(&env));
+        endorsers.push_back(sender.clone());
+        env.storage().persistent().set(&endorsers_key, &endorsers);
+
         // Publish event with both category and points_added
         env.events().publish((symbol_short!("endorse"), target, sender), (category, points_added));
 
         Ok(())
+    }
+
+    fn calculate_decayed_weight(env: &Env, endorsement: &Endorsement) -> u32 {
+        if !endorsement.active {
+            return 0;
+        }
+        let current_time = env.ledger().timestamp();
+        if current_time <= endorsement.timestamp {
+            return endorsement.weight_applied;
+        }
+        let elapsed = current_time - endorsement.timestamp;
+        let thirty_days: u64 = 30 * 24 * 60 * 60; // 2,592,000 seconds
+        if elapsed < thirty_days {
+            return endorsement.weight_applied;
+        }
+        let overtime = elapsed - thirty_days;
+        let seven_days: u64 = 7 * 24 * 60 * 60;
+        let periods = overtime / seven_days; // Number of weeks decayed
+        let decay_pct = periods * 10; // 10% per week
+        if decay_pct >= 80 {
+            // Minimum 20% remaining
+            (endorsement.weight_applied * 20) / 100
+        } else {
+            (endorsement.weight_applied * (100 - decay_pct as u32)) / 100
+        }
     }
 
     pub fn revoke_endorsement(
