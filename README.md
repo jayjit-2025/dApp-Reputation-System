@@ -1,53 +1,58 @@
 <div align="center">
-  <h1>RepuTE</h1>
 
-  <p>
-    <b>Stellar On-Chain Reputation System: Trust is earned. Reputation is proof.</b>
-  </p>
+# RepuTE
 
-  <a href="https://d-app-reputation-system-xmjy.vercel.app">
-    <img src="https://img.shields.io/badge/🚀_LIVE_DEMO-VISIT_APP-00C8FF?style=for-the-badge" alt="Live Demo" />
-  </a>
+### **Stellar On-Chain Reputation System**
+#### *Trust is earned. Reputation is proof.*
 
-  <a href="https://drive.google.com/file/d/1txrpm3KzmnMPw_ziM69p6M5Kz65_RoxP/view?usp=drive_link">
-    <img src="https://img.shields.io/badge/🎬_DEMO_VIDEO-WATCH_NOW-FF3B6B?style=for-the-badge" alt="Demo Video" />
-  </a>
+<br>
 
-  <br><br>
+<a href="https://d-app-reputation-system-xmjy.vercel.app">
+  <img src="https://img.shields.io/badge/🚀_LIVE_DEMO-VISIT_APP-00C8FF?style=for-the-badge" alt="Live Demo"/>
+</a>
 
-  <img src="https://img.shields.io/badge/GitHub_Build-PASSING-success?style=for-the-badge&logo=github" alt="GitHub Build Passing" />
+<a href="https://drive.google.com/file/d/1txrpm3KzmnMPw_ziM69p6M5Kz65_RoxP/view?usp=drive_link">
+  <img src="https://img.shields.io/badge/🎬_DEMO_VIDEO-WATCH_NOW-FF3B6B?style=for-the-badge" alt="Demo Video"/>
+</a>
 
-  <img src="https://img.shields.io/badge/Vercel_Deployment-DEPLOYED-success?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel Deployment" />
+<br><br>
 
-  <br><br>
+<img src="https://img.shields.io/badge/GitHub_Actions-PASSING-success?style=for-the-badge&logo=github" alt="GitHub Actions"/>
 
-  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" />
-  <img src="https://img.shields.io/badge/Stellar-E84142?style=for-the-badge&logo=stellar&logoColor=white" />
-  <img src="https://img.shields.io/badge/Freighter-3178C6?style=for-the-badge&logo=web3.js&logoColor=white" />
-  <img src="https://img.shields.io/badge/License-MIT-4CAF50?style=for-the-badge" />
+<img src="https://img.shields.io/badge/Vercel_Deployment-DEPLOYED-success?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel Deployment"/>
 
-  <br><br>
+<br><br>
 
-  <img width="100%" alt="RepuTE Dashboard Screenshot" src="assets/dashboard.png" />
+<img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB"/>
 
-  <br><br>
+<img src="https://img.shields.io/badge/Stellar-E84142?style=for-the-badge&logo=stellar&logoColor=white"/>
 
-  <i>
-    RepuTE is a decentralized reputation infrastructure allowing users to issue and verify
-    cryptographically signed endorsements on the Stellar network.
-  </i>
+<img src="https://img.shields.io/badge/Soroban-4B2AAD?style=for-the-badge"/>
 
-  <br><br>
+<img src="https://img.shields.io/badge/Freighter-3178C6?style=for-the-badge&logo=web3.js&logoColor=white"/>
 
-  <a href="#protocol">On-Chain Protocol</a> •
-  <a href="#architecture">Architecture</a> •
-  <a href="#ui-refresh">RepuTE v2.0</a> •
-  <a href="#plan">Pipeline</a> •
-  <a href="#cicd">CI/CD</a> •
-  <a href="#mobile">Mobile</a> •
-  <a href="#setup">Quick Start</a>
+<img src="https://img.shields.io/badge/License-MIT-4CAF50?style=for-the-badge"/>
+
+<br><br>
+
+<img width="100%" src="assets/dashboard.png" alt="RepuTE Dashboard"/>
+
+<br><br>
+
+> **RepuTE** is a decentralized reputation infrastructure built on **Stellar Soroban**, enabling users to issue, verify, and discover immutable on-chain endorsements through cryptographically signed smart contracts.
+
+<br>
+
+<a href="#features">Features</a> •
+<a href="#protocol">Protocol</a> •
+<a href="#architecture">Architecture</a> •
+<a href="#workflow">Workflow</a> •
+<a href="#cicd">CI/CD</a> •
+<a href="#mobile">Mobile</a> •
+<a href="#setup">Quick Start</a>
 
 </div>
+
 ---
 
 <a name="ui-refresh"></a>
