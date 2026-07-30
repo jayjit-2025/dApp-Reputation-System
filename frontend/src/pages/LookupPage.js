@@ -62,6 +62,7 @@ const LookupPage = () => {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [walletData, setWalletData] = useState(null);
+  const [transactions, setTransactions] = useState([]);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
   const [endorsementEvents, setEndorsementEvents] = useState([]);
@@ -304,7 +305,7 @@ const LookupPage = () => {
                 </div>
               </div>
 
-              <SpecializationBadges endorsements={events} />
+              <SpecializationBadges endorsements={endorsementEvents} />
             </div>
 
             <div className="card lookup-score-card">

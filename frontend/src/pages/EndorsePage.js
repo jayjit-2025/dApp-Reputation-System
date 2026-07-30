@@ -315,16 +315,17 @@ const EndorsePage = () => {
               onChange={(e) => setReview(e.target.value)}
               style={{ resize: 'none' }}
             />
-          {review.trim() && (
-            <div className="form-group animate-in" style={{ background: 'rgba(0, 229, 255, 0.05)', padding: 14, borderRadius: 8, border: '1px dashed var(--cyan)' }}>
-              <div style={{ fontSize: 11, color: 'var(--cyan)', fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>
-                ON-CHAIN MEMO PREVIEW
+            {review.trim() && (
+              <div className="form-group animate-in" style={{ background: 'rgba(0, 229, 255, 0.05)', padding: 14, borderRadius: 8, border: '1px dashed var(--cyan)', marginTop: 12 }}>
+                <div style={{ fontSize: 11, color: 'var(--cyan)', fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>
+                  ON-CHAIN MEMO PREVIEW
+                </div>
+                <div style={{ fontSize: 13, color: 'var(--text-primary)', fontStyle: 'italic' }}>
+                  "{review}"
+                </div>
               </div>
-              <div style={{ fontSize: 13, color: 'var(--text-primary)', fontStyle: 'italic' }}>
-                "{review}"
-              </div>
-            </div>
-          )}
+            )}
+          </div>
 
           <div className="form-group" style={{ background: 'rgba(0,0,0,0.2)', padding: 16, borderRadius: 8, border: '1px solid var(--border-default)' }}>
             <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
