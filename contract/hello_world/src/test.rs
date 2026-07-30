@@ -119,3 +119,23 @@ fn test_already_endorsed() {
     let review = String::from_str(&env, "Great work!");
     client.endorse(&sender, &target, &category, &review);
 }
+
+#[test]
+fn test_custom_review_storage() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let contract_id = env.register(ReputationContract, ());
+    let client = ReputationContractClient::new(&env, &contract_id);
+
+    let sender = Address::generate(&env);
+    let target = Address::generate(&env);
+    let category = String::from_str(&env, "Community Contribution");
+    let review = String::from_str(&env, "Excellent developer! High code quality.");
+
+    client.endorse(&sender, &target, &category, &review);
+
+    let endorsement = client.get_endorsement(&target, &sender).unwrap();
+    assert_eq!(endorsement.review, review);
+    assert!(endorsement.active);
+}
