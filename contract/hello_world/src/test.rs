@@ -194,3 +194,63 @@ fn test_endorsement_updates() {
     assert_eq!(endorsement.category, new_category);
     assert_eq!(endorsement.review, new_review);
 }
+
+#[test]
+fn test_reputation_decay() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    // Set initial timestamp
+    let initial_time: u64 = 1000000;
+    env.ledger().set(soroban_sdk::ledger::LedgerInfo {
+        timestamp: initial_time,
+        protocol_version: 22,
+        sequence_number: 1,
+        network_id: [0; 32],
+        base_reserve: 10000000,
+        min_temp_entry_ttl: 16,
+        min_persistent_entry_ttl: 4096,
+        max_entry_ttl: 6312000,
+    });
+
+    let contract_id = env.register(ReputationContract, ());
+    let client = ReputationContractClient::new(&env, &contract_id);
+
+    let sender = Address::generate(&env);
+    let target = Address::generate(&env);
+    let category = String::from_str(&env, "Community Contribution");
+    let review = String::from_str(&env, "Good");
+
+    client.endorse(&sender, &target, &category, &review);
+
+    // Initial score must be 1 point
+    assert_eq!(client.get_score(&target), 1);
+
+    // Advance time by 29 days (less than 30 days cliff) -> should still be 1
+    let twenty_nine_days: u64 = 29 * 24 * 60 * 60;
+    env.ledger().set(soroban_sdk::ledger::LedgerInfo {
+        timestamp: initial_time + twenty_nine_days,
+        protocol_version: 22,
+        sequence_number: 2,
+        network_id: [0; 32],
+        base_reserve: 10000000,
+        min_temp_entry_ttl: 16,
+        min_persistent_entry_ttl: 4096,
+        max_entry_ttl: 6312000,
+    });
+    assert_eq!(client.get_score(&target), 1);
+
+    // Advance time by 44 days (30 days cliff + 2 weeks) -> 20% decay -> 1 * 80 / 100 = 0
+    let forty_four_days: u64 = 44 * 24 * 60 * 60;
+    env.ledger().set(soroban_sdk::ledger::LedgerInfo {
+        timestamp: initial_time + forty_four_days,
+        protocol_version: 22,
+        sequence_number: 3,
+        network_id: [0; 32],
+        base_reserve: 10000000,
+        min_temp_entry_ttl: 16,
+        min_persistent_entry_ttl: 4096,
+        max_entry_ttl: 6312000,
+    });
+    assert_eq!(client.get_score(&target), 0);
+}
