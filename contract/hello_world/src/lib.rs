@@ -44,6 +44,7 @@ impl ReputationContract {
         sender: Address,
         target: Address,
         category: String,
+        review: String,
     ) -> Result<(), Error> {
         sender.require_auth();
 
@@ -80,7 +81,13 @@ impl ReputationContract {
         env.storage().persistent().set(&target_score_key, &current_target_score);
 
         let timestamp = env.ledger().timestamp();
-        let endorsement = Endorsement { category: category.clone(), weight_applied: points_added, timestamp };
+        let endorsement = Endorsement {
+            category: category.clone(),
+            weight_applied: points_added,
+            timestamp,
+            review: review.clone(),
+            active: true,
+        };
         env.storage().persistent().set(&key, &endorsement);
 
         // Increment endorsement count for target
