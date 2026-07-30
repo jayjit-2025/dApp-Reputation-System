@@ -207,8 +207,16 @@ impl ReputationContract {
     }
 
     pub fn get_score(env: Env, target: Address) -> u32 {
-        let key = DataKey::TotalScore(target);
-        env.storage().persistent().get(&key).unwrap_or(0)
+        let endorsers_key = DataKey::Endorsers(target.clone());
+        let endorsers: Vec<Address> = env.storage().persistent().get(&endorsers_key).unwrap_or(Vec::new(&env));
+        let mut total_score: u32 = 0;
+        for endorser in endorsers {
+            let key = EndorsementKey { target: target.clone(), sender: endorser };
+            if let Some(endorsement) = env.storage().persistent().get::<_, Endorsement>(&key) {
+                total_score += Self::calculate_decayed_weight(&env, &endorsement);
+            }
+        }
+        total_score
     }
 
     pub fn get_endorsement_count(env: Env, target: Address) -> u32 {
