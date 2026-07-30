@@ -25,3 +25,5 @@ target/
 installer.exe
 temp_project/
 stellar-bin/
+.idea/
+.vscode/*.log

@@ -58,6 +58,10 @@ const DashboardPage = () => {
   const [loading, setLoading] = useState(true);
   const [reputationScore, setReputationScore] = useState(0);
   const [activeTab, setActiveTab] = useState('received'); // 'received' | 'given'
+  const [editingItem, setEditingItem] = useState(null); // { target, category, review }
+  const [editCategory, setEditCategory] = useState('');
+  const [editReview, setEditReview] = useState('');
+  const [actionMessage, setActionMessage] = useState(null);
 
   useEffect(() => {
     if (!connected || !publicKey) return;
