@@ -1,7 +1,7 @@
 #![cfg(test)]
 
 use super::*;
-use soroban_sdk::{testutils::Address as _, Address, Env, String};
+use soroban_sdk::{testutils::Address as _, testutils::Ledger, testutils::LedgerInfo, Address, Env, String};
 
 #[test]
 fn test_successful_endorsement() {
@@ -202,7 +202,7 @@ fn test_reputation_decay() {
 
     // Set initial timestamp
     let initial_time: u64 = 1000000;
-    env.ledger().set(soroban_sdk::ledger::LedgerInfo {
+    env.ledger().set(LedgerInfo {
         timestamp: initial_time,
         protocol_version: 22,
         sequence_number: 1,
@@ -228,7 +228,7 @@ fn test_reputation_decay() {
 
     // Advance time by 29 days (less than 30 days cliff) -> should still be 1
     let twenty_nine_days: u64 = 29 * 24 * 60 * 60;
-    env.ledger().set(soroban_sdk::ledger::LedgerInfo {
+    env.ledger().set(LedgerInfo {
         timestamp: initial_time + twenty_nine_days,
         protocol_version: 22,
         sequence_number: 2,
@@ -242,7 +242,7 @@ fn test_reputation_decay() {
 
     // Advance time by 44 days (30 days cliff + 2 weeks) -> 20% decay -> 1 * 80 / 100 = 0
     let forty_four_days: u64 = 44 * 24 * 60 * 60;
-    env.ledger().set(soroban_sdk::ledger::LedgerInfo {
+    env.ledger().set(LedgerInfo {
         timestamp: initial_time + forty_four_days,
         protocol_version: 22,
         sequence_number: 3,
