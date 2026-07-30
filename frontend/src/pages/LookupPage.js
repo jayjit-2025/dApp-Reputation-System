@@ -311,7 +311,7 @@ const LookupPage = () => {
 
             <div className="card lookup-score-card">
               <ScoreRingSmall score={stats.score} />
-              <div style={{ marginTop: 12 }}>
+              <div style={{ marginTop: 12, textAlign: 'center' }}>
                 <span className={`badge badge-${stats.badge}`}>
                   {stats.badge === 'platinum'
                     ? 'PLATINUM'
@@ -319,6 +319,9 @@ const LookupPage = () => {
                     ? 'TOP TIER'
                     : 'ACTIVE'}
                 </span>
+                <div style={{ fontSize: 11, color: 'var(--cyan)', marginTop: 6, fontWeight: 600 }}>
+                  ⚡ Dynamic Time-Decay Active
+                </div>
               </div>
             </div>
           </div>
