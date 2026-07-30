@@ -461,6 +461,69 @@ To address user feedback directly, the following features are actively scheduled
 
 ---
 
+## 📧 Registered Accounts
+
+The following 35 registered user accounts participated in the level onboarding and testnet feedback evaluation:
+
+| # | Account Email |
+| :---: | :--- |
+| 1 | `ankushsarkar294@gmail.com` |
+| 2 | `sarkarbarnali929@gmail.com` |
+| 3 | `rd4473772@gmail.com` |
+| 4 | `ranitpal77@gmail.com` |
+| 5 | `arghyafade123@gmail.com` |
+| 6 | `anaras00031@gmail.com` |
+| 7 | `sayansadhukhan544@gmail.com` |
+| 8 | `arpanbasak90@gmail.com` |
+| 9 | `wjonas387@gmail.com` |
+| 10 | `mrbhadra111@gmail.com` |
+| 11 | `biki2003@gmail.com` |
+| 12 | `arpangns145@gmail.com` |
+| 13 | `doraemonlover323@gmail.com` |
+| 14 | `rahul349@gmail.com` |
+| 15 | `binapaul.t@gmail.com` |
+| 16 | `tryankush2007@gmail.com` |
+| 17 | `agentrs0007@gmail.com` |
+| 18 | `kingofpirates451@gmail.com` |
+| 19 | `manikaabir6@gmail.com` |
+| 20 | `arghasarkar953@gmail.com` |
+| 21 | `ashishchaurasia624@gmail.com` |
+| 22 | `mukherjeeriya948@gmail.com` |
+| 23 | `arghasarkar88@gmail.com` |
+| 24 | `sarkarranit050@gmail.com` |
+| 25 | `subhadipduttads@gmail.com` |
+| 26 | `jaitadutta597@gmail.com` |
+| 27 | `malasarkar287@gmail.com` |
+| 28 | `ankushshaw764@gmail.com` |
+| 29 | `srijitagoswami534@gmail.com` |
+| 30 | `rajdeep23@gmail.com` |
+| 31 | `pousalibanerjeeg6@gmail.com` |
+| 32 | `Labonno@gmail.com` |
+| 33 | `shreyagoswami2024@gmail.com` |
+| 34 | `sohansarkar13102006@gmail.com` |
+| 35 | `jjinimon@gmail.com` |
+
+---
+
+## ⛓️ Transaction Hashes
+
+Verified on-chain Soroban smart contract transaction hashes executed on the Stellar Testnet:
+
+| # | Transaction Hash |
+| :---: | :--- |
+| 1 | `724c6dbfd8e0b6601527b02713d2097250a73d713769b54d2771cfac625f7de9` |
+| 2 | `1d383873495b7e2949298c08e640087085f29d6de43abd638481db35acb6024d` |
+| 3 | `24d4a6b9dc249ff58fc921659480b6473f0a468eb4f78510024f3ae020b76bdb` |
+| 4 | `4c149cced0a7f08a4ed88fd5d3626182429e5f06654d717704eb7d891a3268f2` |
+| 5 | `a1d37a4d91797781767bb5fbe7af6cf7b2bbde5c2e959b0c299f17e81bab8441` |
+| 6 | `2945f8035d90d412489976e31509d8cf33764cd74d49833105805bb5163c72c6` |
+| 7 | `685a2e856af840945d03153ba3c00483ed20783ee3fdb794a8bc689849b92502` |
+| 8 | `b07cc03054b76eb1d1270108fa2856a6fdf4935c80436b046be72dc74c8060cf` |
+| 9 | `b9e6f48f6c972a2a38060d34a0a882a3b3811f6f8df041ca1da30ea5fc6d3e29` |
+| 10 | `a1d37a4d91797781767bb5fbe7af6cf7b2bbde5c2e959b0c299f17e81bab8441` |
+
+---
+
 ## 🔗 Quick Resource Links
 
 - 📝 [User Feedback Form](https://docs.google.com/spreadsheets/d/1mgM0yE0Ffnw-42-k_rxMmWza9Ka2Huh-YIO9bpQuyWE/edit?usp=sharing)
