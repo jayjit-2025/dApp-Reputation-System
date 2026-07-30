@@ -62,7 +62,6 @@ const LookupPage = () => {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [walletData, setWalletData] = useState(null);
-  const [transactions, setTransactions] = useState([]);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
   const [endorsementEvents, setEndorsementEvents] = useState([]);
@@ -70,9 +69,8 @@ const LookupPage = () => {
   const performSearch = async (addressToSearch) => {
     if (!addressToSearch) return;
 
-    // Bug 4 fix: Clear ALL previous state before starting new search
+    // Clear ALL previous state before starting new search
     setWalletData(null);
-    setTransactions([]);
     setEndorsementEvents([]);
     setError('');
     setLoading(true);
