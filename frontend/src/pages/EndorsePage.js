@@ -17,6 +17,7 @@ const EndorsePage = () => {
   const { connected, publicKey } = useWallet();
   const [targetAddress, setTargetAddress] = useState('');
   const [category, setCategory] = useState(CATEGORIES[0]);
+  const [review, setReview] = useState('');
   
   const [userScore, setUserScore] = useState(0);
   const [multiplier, setMultiplier] = useState(0.1);
@@ -51,7 +52,7 @@ const EndorsePage = () => {
     if (!targetAddress || !publicKey) return;
 
     setSubmitting(true);
-    const res = await submitEndorsement(publicKey, targetAddress, category);
+    const res = await submitEndorsement(publicKey, targetAddress, category, review);
     setResult(res);
     setSubmitting(false);
   };
@@ -59,6 +60,7 @@ const EndorsePage = () => {
   const resetForm = () => {
     setTargetAddress('');
     setCategory(CATEGORIES[0]);
+    setReview('');
     setResult(null);
   };
 
@@ -297,6 +299,22 @@ const EndorsePage = () => {
                 </option>
               ))}
             </select>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>Review Memo (Optional)</span>
+              <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{review.length}/100</span>
+            </label>
+            <textarea
+              className="form-input"
+              rows="3"
+              maxLength={100}
+              placeholder="e.g., Outstanding contribution to core protocol code..."
+              value={review}
+              onChange={(e) => setReview(e.target.value)}
+              style={{ resize: 'none' }}
+            />
           </div>
 
           <div className="form-group" style={{ background: 'rgba(0,0,0,0.2)', padding: 16, borderRadius: 8, border: '1px solid var(--border-default)' }}>

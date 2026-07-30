@@ -1,5 +1,6 @@
 {
   "name": "dapp-reputation-system",
+  "version": "2.1.0",
   "scripts": {
     "build": "cd frontend && npm install && cross-env CI=false npm run build",
     "install": "cd frontend && npm install"
