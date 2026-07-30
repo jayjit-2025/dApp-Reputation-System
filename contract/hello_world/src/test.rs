@@ -168,3 +168,29 @@ fn test_endorsement_revocation() {
     // Score should be deducted back to 0
     assert_eq!(client.get_score(&target), 0);
 }
+
+#[test]
+fn test_endorsement_updates() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let contract_id = env.register(ReputationContract, ());
+    let client = ReputationContractClient::new(&env, &contract_id);
+
+    let sender = Address::generate(&env);
+    let target = Address::generate(&env);
+    let category = String::from_str(&env, "Liquidity Provider");
+    let review = String::from_str(&env, "Good liquidity contribution");
+
+    client.endorse(&sender, &target, &category, &review);
+
+    // Update the category and review text
+    let new_category = String::from_str(&env, "Top-tier Validator");
+    let new_review = String::from_str(&env, "Superb uptime and validator performance!");
+    client.update_endorsement(&sender, &target, &new_category, &new_review);
+
+    // Verify it updated correctly
+    let endorsement = client.get_endorsement(&target, &sender).unwrap();
+    assert_eq!(endorsement.category, new_category);
+    assert_eq!(endorsement.review, new_review);
+}
