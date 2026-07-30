@@ -22,6 +22,8 @@ pub struct Endorsement {
     pub category: String,
     pub weight_applied: u32,
     pub timestamp: u64,
+    pub review: String,
+    pub active: bool,
 }
 
 // Data key for tracking a user's total score
