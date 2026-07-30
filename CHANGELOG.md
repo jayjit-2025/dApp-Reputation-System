@@ -5,6 +5,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [2.1.0] - 2026-07-30
+
+### Added
+- **Custom Review Memos**: Soroban contract & UI support attaching review memos to endorsements
+- **Revocation & Update System**: Added contract methods `revoke_endorsement` & `update_endorsement` and Freighter integration
+- **Time-Decay Scoring Engine**: Dynamic on-chain time-decay formula applied in `get_score`
+- **Specialization Ranks & Badges**: Dynamic role badges based on category score thresholds
+
+---
+
 ## [Unreleased]
 
 ### Added
