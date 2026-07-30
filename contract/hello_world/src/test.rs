@@ -139,3 +139,32 @@ fn test_custom_review_storage() {
     assert_eq!(endorsement.review, review);
     assert!(endorsement.active);
 }
+
+#[test]
+fn test_endorsement_revocation() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let contract_id = env.register(ReputationContract, ());
+    let client = ReputationContractClient::new(&env, &contract_id);
+
+    let sender = Address::generate(&env);
+    let target = Address::generate(&env);
+    let category = String::from_str(&env, "Liquidity Provider");
+    let review = String::from_str(&env, "Good liquidity contribution");
+
+    client.endorse(&sender, &target, &category, &review);
+
+    // Score is initially 1
+    assert_eq!(client.get_score(&target), 1);
+
+    // Revoke
+    client.revoke_endorsement(&sender, &target);
+
+    // Endorsement should now be inactive
+    let endorsement = client.get_endorsement(&target, &sender).unwrap();
+    assert!(!endorsement.active);
+
+    // Score should be deducted back to 0
+    assert_eq!(client.get_score(&target), 0);
+}
