@@ -1,6 +1,9 @@
 <div align="center">
   <h1>RepuTE</h1>
-  <p><b>Stellar On-Chain Reputation System: Trust is earned. Reputation is proof.</b></p>
+
+  <p>
+    <b>Stellar On-Chain Reputation System: Trust is earned. Reputation is proof.</b>
+  </p>
 
   <a href="https://d-app-reputation-system-xmjy.vercel.app">
     <img src="https://img.shields.io/badge/🚀_LIVE_DEMO-VISIT_APP-00C8FF?style=for-the-badge" alt="Live Demo" />
@@ -10,13 +13,11 @@
     <img src="https://img.shields.io/badge/🎬_DEMO_VIDEO-WATCH_NOW-FF3B6B?style=for-the-badge" alt="Demo Video" />
   </a>
 
-  <a href="#">
-    <img src="https://img.shields.io/badge/CI/CD-PASSING-success?style=for-the-badge" alt="CI/CD Passing" />
-  </a>
+  <br><br>
 
-  <a href="https://d-app-reputation-system-xmjy.vercel.app">
-    <img src="https://img.shields.io/badge/Vercel_CD-PASSING_%26_DEPLOYED-00E676?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel Deployment" />
-  </a>
+  <img src="https://img.shields.io/badge/GitHub_Build-PASSING-success?style=for-the-badge&logo=github" alt="GitHub Build Passing" />
+
+  <img src="https://img.shields.io/badge/Vercel_Deployment-DEPLOYED-success?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel Deployment" />
 
   <br><br>
 
@@ -47,7 +48,6 @@
   <a href="#setup">Quick Start</a>
 
 </div>
-
 ---
 
 <a name="ui-refresh"></a>
