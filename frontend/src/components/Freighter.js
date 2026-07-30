@@ -40,7 +40,35 @@ const connectKitWallet = async () => {
 };
 
 const checkConnection = async () => {
-  return true; // Wallet kit handles it
+  try {
+    const { address } = await kit.getAddress();
+    return !!address;
+  } catch (e) {
+    return false;
+  }
+};
+
+const checkNetworkStatus = async () => {
+  try {
+    const start = Date.now();
+    const ledger = await rpcServer.getLatestLedger();
+    const latency = Date.now() - start;
+    return {
+      connected: true,
+      sequence: ledger.sequence,
+      latencyMs: latency,
+      network: WalletNetwork.TESTNET,
+    };
+  } catch (e) {
+    console.error("[NetworkCheck] Connection warning:", e);
+    return {
+      connected: false,
+      sequence: 0,
+      latencyMs: -1,
+      network: WalletNetwork.TESTNET,
+      error: e?.message || "RPC connection offline",
+    };
+  }
 };
 
 const retrievePublicKey = async () => {
@@ -452,6 +480,7 @@ const updateEndorsement = async (senderPubKey, targetAddress, newCategory, newRe
 export {
   connectKitWallet,
   checkConnection,
+  checkNetworkStatus,
   retrievePublicKey,
   getBalance,
   submitEndorsement,
