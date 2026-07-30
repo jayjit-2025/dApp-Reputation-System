@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
+import SpecializationBadges from '../components/Badges';
 
 import {
   fetchRecentTransactions,
@@ -304,6 +305,8 @@ const LookupPage = () => {
                   <div className="dash-stat-value">{stats.standing}</div>
                 </div>
               </div>
+
+              <SpecializationBadges endorsements={events} />
             </div>
 
             <div className="card lookup-score-card">
