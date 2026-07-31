@@ -55,7 +55,7 @@
 
 ---
 
-<a name="ui-refresh"></a>
+<a name="features"></a>
 ## 🌟 Enterprise UI Overhaul (v2.0)
 
 RepuTE features a high-density **Sovereign Ledger Aesthetic**, built for maximum clarity and institutional trust.
@@ -159,7 +159,7 @@ The architecture ensures data integrity:
 
 ## 🧪 Test Suite
 
-The Soroban smart contract has **5 passing unit tests** covering all contract functions and both custom error types:
+The Soroban smart contract has **9 passing unit tests** covering all contract functions, time-decay math, review storage, revocation, updates, and custom error types:
 
 ```bash
 # Run all contract tests
@@ -171,15 +171,15 @@ cargo test
 |:---|:---|:---:|:---|
 | `test_successful_endorsement` | Valid single endorsement | ✅ PASS | Endorsement stored, score incremented, count incremented |
 | `test_successful_endorsement_and_multiplier` | Multiplier chain (A→B→C) | ✅ PASS | Weight applied correctly at 0.1x for score 0 endorsers |
-| `test_score_accumulates_across_multiple_endorsers` | 3 independent senders endorse same target | ✅ PASS | Score = 3, count = 3 after three separate endorsements |
-| `test_self_endorsement_not_allowed` | Endorsing own address | ✅ PASS | Contract throws Error #1 (`SelfEndorsementNotAllowed`) as expected |
-| `test_already_endorsed` | Duplicate endorsement from same sender | ✅ PASS | Contract throws Error #2 (`AlreadyEndorsed`) as expected |
+| `test_score_accumulates_across_multiple_endorsers` | 3 independent senders endorse target | ✅ PASS | Score = 3, count = 3 after three separate endorsements |
+| `test_self_endorsement_not_allowed` | Endorsing own address | ✅ PASS | Throws Error #1 (`SelfEndorsementNotAllowed`) |
+| `test_already_endorsed` | Duplicate endorsement from same sender | ✅ PASS | Throws Error #2 (`AlreadyEndorsed`) |
+| `test_custom_review_storage` | Endorsement with custom review memo | ✅ PASS | Memo string correctly stored and retrieved on-chain |
+| `test_endorsement_revocation` | Revoke given endorsement | ✅ PASS | Sets active=false and deducts score from target |
+| `test_endorsement_updates` | Update category & review memo | ✅ PASS | Updates active endorsement entry on-chain |
+| `test_reputation_decay` | Ledger time progression simulation | ✅ PASS | Applies 10%/week time decay after 30-day cliff |
 
-> **Result**: `5 passed; 0 failed` — The last two tests use `#[should_panic]`, meaning they **pass** when the contract correctly rejects invalid inputs.
-
-### 📸 Test Output Proof
-
-<img width="100%" alt="4 Tests Passing - Cargo Test Output" src="assets/tests-passing.png" />
+> **Result**: `9 passed; 0 failed` — All tests execute cleanly in local Cargo runner and GitHub Actions CI.
 
 ---
 
@@ -187,7 +187,7 @@ cargo test
 ## ⚙️ CI/CD Pipeline
 
 This project uses **GitHub Actions** for continuous integration. Every push to `main` automatically:
-- ✅ Runs all 5 Soroban contract unit tests (`cargo test`)
+- ✅ Runs all 9 Soroban contract unit tests (`cargo test`)
 - ✅ Builds the production React bundle (`npm run build`)
 
 ### 📸 CI/CD Pipeline Screenshot
@@ -227,21 +227,21 @@ RepuTE is fully responsive across all screen sizes. On mobile:
 
 ---
 
-## ✅ Proof of Payment
+## ✅ On-Chain Deployment & Execution Proof
 
-> **Real transaction on Stellar Soroban Testnet**
+> **Real transaction executed on Stellar Soroban Testnet**
 
 | Field | Value |
 |:---|:---|
-| **Transaction Hash** | [`7024344d6915a9cfea5cf8f41120484f7a2787ab97181cfedcf90c067bf37a42`](https://stellar.expert/explorer/testnet/tx/7024344d6915a9cfea5cf8f41120484f7a2787ab97181cfedcf90c067bf37a42) |
-| **Function Called** | `Reputaion statement ` |
-| **Reputaion Hash** | `7024344d6915a9cfea5cf8f41120484f7a2787ab97181cfedcf90c067bf37a42` |
+| **Contract Address** | [`CAKMFPKJ6YEEHER2NB6FREPAZJ2UFMTGIHDTX3CW7P3OC2UNYWDV7MW3`](https://stellar.expert/explorer/testnet/contract/CAKMFPKJ6YEEHER2NB6FREPAZJ2UFMTGIHDTX3CW7P3OC2UNYWDV7MW3) |
+| **Transaction Hash** | [`c2d5c5d088a652aedee045bc3a5894733a569e7f8268f25a5913bb2ddedb07a9`](https://stellar.expert/explorer/testnet/tx/c2d5c5d088a652aedee045bc3a5894733a569e7f8268f25a5913bb2ddedb07a9) |
+| **Function Called** | `contract deploy` / `endorse` |
 | **Status** | ✅ Success |
 | **Network** | Stellar Soroban (Testnet) |
-| **Processed** | `Sun, Mar 22, 2026, 05:56:31 UTC` |
+| **Processed** | `Fri, Jul 31, 2026, 14:42:16 UTC` |
 | **Fee Charged** | `0.00001 XLM` |
 
-🔗 [View on Stellar Expert](https://stellar.expert/explorer/testnet/tx/7024344d6915a9cfea5cf8f41120484f7a2787ab97181cfedcf90c067bf37a42))
+🔗 [View Deployment Transaction on Stellar Expert](https://stellar.expert/explorer/testnet/tx/c2d5c5d088a652aedee045bc3a5894733a569e7f8268f25a5913bb2ddedb07a9)
 
 ### 📸 Transaction Proof Screenshot
 <img width="1915" height="861" alt="Screenshot 2026-03-22 114917" src="https://github.com/user-attachments/assets/6dd03522-082c-4bfc-a281-7dab00070dd5" />
@@ -287,7 +287,7 @@ graph LR
 │   └── hello_world/
 │       └── src/
 │           ├── lib.rs          # Reputation smart contract (3 errors, events)
-│           └── test.rs         # 4 unit tests (all passing)
+│           └── test.rs         # 9 unit tests (all passing)
 └── frontend/                   # React Frontend Application
     ├── public/                 # Static assets & Branding
     └── src/
@@ -335,7 +335,7 @@ graph LR
 ### C) Smart Contract (optional — already deployed)
 ```bash
 cd contract/hello_world
-cargo test        # Run the 4 unit tests
+cargo test        # Run all 9 unit tests
 cargo build --target wasm32-unknown-unknown --release  # Build WASM
 ```
 
