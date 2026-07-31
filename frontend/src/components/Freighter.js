@@ -12,8 +12,8 @@ const NETWORK_PASSPHRASE = StellarSdk.Networks.TESTNET;
 const server = new StellarSdk.Horizon.Server(HORIZON_URL);
 const rpcServer = new StellarSdk.rpc.Server(RPC_URL);
 
-// New Deployed Contract ID
-const CONTRACT_ID = "CB424V2KWLZ4EXHLQQR4P63KR4RWKVE7S4UM2QUWT2P2RHDLLFSZWVDH";
+// New Deployed Contract ID (Deployed July 31, 2026 UTC)
+const CONTRACT_ID = "CAKMFPKJ6YEEHER2NB6FREPAZJ2UFMTGIHDTX3CW7P3OC2UNYWDV7MW3";
 
 const kit = new StellarWalletsKit({
   network: WalletNetwork.TESTNET,

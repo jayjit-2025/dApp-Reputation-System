@@ -215,9 +215,11 @@ RepuTE is fully responsive across all screen sizes. On mobile:
 ---
 
 <a name="contract"></a>
-## 🔗 Deployed Contract
-**Address**: `CCE4HERRLNWDJYGOD637TQCHZSMEY6TODMXL3R6GLLPZJKFDJU42TFIT`
-- [View on Stellar.Expert Explorer](https://stellar.expert/explorer/testnet/contract/CCE4HERRLNWDJYGOD637TQCHZSMEY6TODMXL3R6GLLPZJKFDJU42TFIT)
+## 🔗 Deployed Contract (Soroban v2.1)
+**Address**: `CAKMFPKJ6YEEHER2NB6FREPAZJ2UFMTGIHDTX3CW7P3OC2UNYWDV7MW3`
+- **Deployment Date**: `July 31, 2026`
+- **Deployment Transaction Hash**: [`c2d5c5d088a652aedee045bc3a5894733a569e7f8268f25a5913bb2ddedb07a9`](https://stellar.expert/explorer/testnet/tx/c2d5c5d088a652aedee045bc3a5894733a569e7f8268f25a5913bb2ddedb07a9)
+- [View Contract on Stellar.Expert Explorer](https://stellar.expert/explorer/testnet/contract/CAKMFPKJ6YEEHER2NB6FREPAZJ2UFMTGIHDTX3CW7P3OC2UNYWDV7MW3)
 
 ### 📸 Smart Contract Dashboard
 <img width="1919" height="865" alt="Screenshot 2026-03-20 151723" src="https://github.com/user-attachments/assets/5c216acd-7326-4c7c-881e-a334a7395225" />
