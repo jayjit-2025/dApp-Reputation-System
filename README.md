@@ -159,7 +159,7 @@ The architecture ensures data integrity:
 
 ## 🧪 Test Suite
 
-The Soroban smart contract has **9 passing unit tests** covering all contract functions, time-decay math, review storage, revocation, updates, and custom error types:
+The Soroban smart contract has **11 passing unit tests** covering all contract functions, time-decay math, review storage, revocation, updates, review length limits, and custom error types:
 
 ```bash
 # Run all contract tests
@@ -178,8 +178,10 @@ cargo test
 | `test_endorsement_revocation` | Revoke given endorsement | ✅ PASS | Sets active=false and deducts score from target |
 | `test_endorsement_updates` | Update category & review memo | ✅ PASS | Updates active endorsement entry on-chain |
 | `test_reputation_decay` | Ledger time progression simulation | ✅ PASS | Applies 10%/week time decay after 30-day cliff |
+| `test_review_length_limit` | Review string exceeding max length | ✅ PASS | Throws Error #5 (`ReviewTooLong`) as expected |
+| `test_score_query_for_unendorsed_target` | Query score for target with 0 endorsements | ✅ PASS | Returns score 0 and count 0 without error |
 
-> **Result**: `9 passed; 0 failed` — All tests execute cleanly in local Cargo runner and GitHub Actions CI.
+> **Result**: `11 passed; 0 failed` — All tests execute cleanly in local Cargo runner and GitHub Actions CI.
 
 ---
 
@@ -187,7 +189,7 @@ cargo test
 ## ⚙️ CI/CD Pipeline
 
 This project uses **GitHub Actions** for continuous integration. Every push to `main` automatically:
-- ✅ Runs all 9 Soroban contract unit tests (`cargo test`)
+- ✅ Runs all 11 Soroban contract unit tests (`cargo test`)
 - ✅ Builds the production React bundle (`npm run build`)
 
 ### 📸 CI/CD Pipeline Screenshot
