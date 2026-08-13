@@ -9,7 +9,6 @@ import {
   revokeEndorsement,
   updateEndorsement,
 } from '../components/Freighter';
-import SpecializationBadges from '../components/Badges';
 import * as StellarSdk from "@stellar/stellar-sdk";
 const ScoreRing = ({ score, size = 200, strokeWidth = 8 }) => {
   const radius = (size - strokeWidth) / 2;
