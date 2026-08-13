@@ -254,3 +254,34 @@ fn test_reputation_decay() {
     });
     assert_eq!(client.get_score(&target), 0);
 }
+
+#[test]
+#[should_panic(expected = "Error(Contract, #5)")]
+fn test_review_length_limit() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let contract_id = env.register(ReputationContract, ());
+    let client = ReputationContractClient::new(&env, &contract_id);
+
+    let sender = Address::generate(&env);
+    let target = Address::generate(&env);
+    let category = String::from_str(&env, "Development");
+    
+    // Create a 201-character review string (exceeding 200 max)
+    let long_review_str = "a".repeat(201);
+    let review = String::from_str(&env, &long_review_str);
+
+    client.endorse(&sender, &target, &category, &review);
+}
+
+#[test]
+fn test_score_query_for_unendorsed_target() {
+    let env = Env::default();
+    let contract_id = env.register(ReputationContract, ());
+    let client = ReputationContractClient::new(&env, &contract_id);
+
+    let random_target = Address::generate(&env);
+    assert_eq!(client.get_score(&random_target), 0);
+    assert_eq!(client.get_endorsement_count(&random_target), 0);
+}
