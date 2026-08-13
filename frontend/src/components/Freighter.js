@@ -477,6 +477,15 @@ const updateEndorsement = async (senderPubKey, targetAddress, newCategory, newRe
   }
 };
 
+const getTransactionStatus = async (hash) => {
+  try {
+    const res = await rpcServer.getTransaction(hash);
+    return { status: res.status, raw: res };
+  } catch (e) {
+    return { status: "ERROR", error: e?.message };
+  }
+};
+
 export {
   connectKitWallet,
   checkConnection,
@@ -486,6 +495,7 @@ export {
   submitEndorsement,
   revokeEndorsement,
   updateEndorsement,
+  getTransactionStatus,
   fetchRecentTransactions,
   fetchAccountData,
   fetchSorobanEvents,
