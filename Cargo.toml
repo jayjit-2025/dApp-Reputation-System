@@ -4,6 +4,12 @@ members = [
     "contract/hello_world",
 ]
 
+[workspace.package]
+version = "2.2.0"
+authors = ["Jayjit Dutta <jayjit2025@github.com>"]
+edition = "2021"
+repository = "https://github.com/jayjit-2025/dApp-Reputation-System"
+
 [profile.release]
 opt-level = "z"
 overflow-checks = true
