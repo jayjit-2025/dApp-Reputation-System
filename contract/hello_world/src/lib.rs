@@ -56,6 +56,10 @@ impl ReputationContract {
     ) -> Result<(), Error> {
         sender.require_auth();
 
+        if !is_valid_review_length(&review) {
+            return Err(Error::ReviewTooLong);
+        }
+
         if sender == target {
             return Err(Error::SelfEndorsementNotAllowed);
         }
