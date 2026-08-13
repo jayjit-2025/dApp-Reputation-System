@@ -1,13 +1,15 @@
 {
   "name": "dapp-reputation-system",
-  "version": "2.1.0",
+  "version": "2.2.0",
+  "description": "Stellar On-Chain Reputation Infrastructure v2.2.0",
   "scripts": {
-    "build": "cd frontend && npm install && cross-env CI=false npm run build",
-    "install": "cd frontend && npm install"
+    "build": "cd frontend && npm install --legacy-peer-deps && cross-env CI=false npm run build",
+    "install": "cd frontend && npm install --legacy-peer-deps",
+    "test:contract": "cd contract/hello_world && cargo test"
   },
   "dependencies": {
     "@stellar/freighter-api": "^6.0.1",
     "@stellar/stellar-sdk": "^14.6.1",
-    "cross-env": "^10.1.0"
+    "cross-env": "^7.0.3"
   }
 }
