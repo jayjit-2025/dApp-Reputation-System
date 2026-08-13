@@ -3,6 +3,15 @@
 All notable changes to RepuTE are documented here.  
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [2.2.0] - 2026-08-13
+
+### Added
+- **Contract Review Length Enforcement**: `is_valid_review_length` validator and `ReviewTooLong` error code #5
+- **Expanded Rust Unit Test Suite**: Added 2 new tests (`test_review_length_limit`, `test_score_query_for_unendorsed_target`) bringing contract tests to 11/11 passed
+- **RPC Utility Helpers**: `getTransactionStatus` method added to `Freighter.js`
+- **Formatters Utility**: Added `truncationAddress` & `formatRelativeTime` helpers in `frontend/src/utils/formatters.js`
+- **UI Enhancements**: Hero status badge in `LandingPage.js`, memo clearing button in `EndorsePage.js`, and lookup search caching in `LookupPage.js`
+
 ---
 
 ## [2.1.0] - 2026-07-30
