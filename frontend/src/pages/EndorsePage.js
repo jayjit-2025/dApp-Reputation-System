@@ -301,10 +301,20 @@ const EndorsePage = () => {
             </select>
           </div>
 
-          <div className="form-group">
             <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span>Review Memo (Optional)</span>
-              <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{review.length}/100</span>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                {review && (
+                  <button
+                    type="button"
+                    onClick={() => setReview('')}
+                    style={{ background: 'none', border: 'none', color: 'var(--cyan)', fontSize: 11, cursor: 'pointer', padding: 0 }}
+                  >
+                    Clear Memo
+                  </button>
+                )}
+                <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{review.length}/100</span>
+              </div>
             </label>
             <textarea
               className="form-input"
