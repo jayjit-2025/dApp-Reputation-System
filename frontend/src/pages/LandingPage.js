@@ -48,6 +48,9 @@ const LandingPage = () => {
         {/* Title */}
         <h1 className="landing-title">RepuTE</h1>
         <p className="landing-subtitle">Trust is earned. Reputation is proof.</p>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(0, 229, 255, 0.08)', border: '1px solid var(--border-glow)', padding: '4px 12px', borderRadius: 20, fontSize: 11, color: 'var(--cyan)', fontWeight: 600, marginTop: 8 }}>
+          ⚡ RepuTE v2.2.0 Soroban Engine Active
+        </div>
 
         {/* Connect card */}
         <div className="landing-card">
