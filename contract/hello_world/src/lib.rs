@@ -9,6 +9,11 @@ pub enum Error {
     AlreadyEndorsed = 2,
     EndorsementNotFound = 3,
     AlreadyRevoked = 4,
+    ReviewTooLong = 5,
+}
+
+pub fn is_valid_review_length(review: &String) -> bool {
+    review.len() <= 200
 }
 
 #[contracttype]
