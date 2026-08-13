@@ -1,4 +1,4 @@
-name: CI Pipeline (Soroban v2.1 & React)
+name: CI Pipeline (Soroban v2.2 & React)
 
 on:
   push:
