@@ -1,6 +1,6 @@
 {
   "name": "stellar-connect-wallet",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "private": true,
   "dependencies": {
     "@creit.tech/stellar-wallets-kit": "^1.9.5",
