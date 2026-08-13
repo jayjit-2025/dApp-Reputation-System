@@ -70,6 +70,10 @@ const LookupPage = () => {
   const performSearch = async (addressToSearch) => {
     if (!addressToSearch) return;
 
+    try {
+      localStorage.setItem('repute_last_lookup', addressToSearch);
+    } catch (e) {}
+
     // Clear ALL previous state before starting new search
     setWalletData(null);
     setEndorsementEvents([]);
