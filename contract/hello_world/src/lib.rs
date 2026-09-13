@@ -10,10 +10,18 @@ pub enum Error {
     EndorsementNotFound = 3,
     AlreadyRevoked = 4,
     ReviewTooLong = 5,
+    AlreadyInitialized = 6,
+    Unauthorized = 7,
+    ContractPaused = 8,
+    InvalidCategory = 9,
 }
 
 pub fn is_valid_review_length(review: &String) -> bool {
-    review.len() <= 200
+    review.len() <= 200 && review.len() > 0
+}
+
+pub fn is_valid_category(cat: &String) -> bool {
+    cat.len() > 0 && cat.len() <= 50
 }
 
 #[contracttype]
@@ -33,13 +41,15 @@ pub struct Endorsement {
     pub active: bool,
 }
 
-// Data key for tracking a user's total score
+// Data key for contract state
 #[contracttype]
 #[derive(Clone)]
 pub enum DataKey {
-    TotalScore(Address),
     EndorsementCount(Address),
     Endorsers(Address),
+    Admin,
+    Paused,
+    Initialized,
 }
 
 #[contract]
@@ -47,6 +57,76 @@ pub struct ReputationContract;
 
 #[contractimpl]
 impl ReputationContract {
+    // ─── Constructor & Initialization ────────────────────────────────────
+
+    pub fn __constructor(env: Env, admin: Address) {
+        env.storage().instance().set(&DataKey::Admin, &admin);
+        env.storage().instance().set(&DataKey::Paused, &false);
+        env.storage().instance().set(&DataKey::Initialized, &true);
+    }
+
+    pub fn initialize(env: Env, admin: Address) -> Result<(), Error> {
+        let initialized: bool = env.storage().instance().get(&DataKey::Initialized).unwrap_or(false);
+        if initialized {
+            return Err(Error::AlreadyInitialized);
+        }
+        admin.require_auth();
+        env.storage().instance().set(&DataKey::Admin, &admin);
+        env.storage().instance().set(&DataKey::Paused, &false);
+        env.storage().instance().set(&DataKey::Initialized, &true);
+        Ok(())
+    }
+
+    // ─── Admin Functions ─────────────────────────────────────────────────
+
+    pub fn get_admin(env: Env) -> Address {
+        env.storage().instance().get(&DataKey::Admin).unwrap_or_else(|| {
+            panic!("contract not initialized")
+        })
+    }
+
+    pub fn set_admin(env: Env, new_admin: Address) -> Result<(), Error> {
+        let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap_or_else(|| {
+            panic!("contract not initialized")
+        });
+        admin.require_auth();
+        env.storage().instance().set(&DataKey::Admin, &new_admin);
+        Ok(())
+    }
+
+    // ─── Pause Mechanism ─────────────────────────────────────────────────
+
+    pub fn pause(env: Env) -> Result<(), Error> {
+        let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap_or_else(|| {
+            panic!("contract not initialized")
+        });
+        admin.require_auth();
+        env.storage().instance().set(&DataKey::Paused, &true);
+        Ok(())
+    }
+
+    pub fn unpause(env: Env) -> Result<(), Error> {
+        let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap_or_else(|| {
+            panic!("contract not initialized")
+        });
+        admin.require_auth();
+        env.storage().instance().set(&DataKey::Paused, &false);
+        Ok(())
+    }
+
+    pub fn is_paused(env: Env) -> bool {
+        env.storage().instance().get(&DataKey::Paused).unwrap_or(false)
+    }
+
+    fn require_not_paused(env: &Env) {
+        let paused: bool = env.storage().instance().get(&DataKey::Paused).unwrap_or(false);
+        if paused {
+            panic!("contract is paused");
+        }
+    }
+
+    // ─── Core Endorsement Logic ──────────────────────────────────────────
+
     pub fn endorse(
         env: Env,
         sender: Address,
@@ -55,6 +135,12 @@ impl ReputationContract {
         review: String,
     ) -> Result<(), Error> {
         sender.require_auth();
+
+        Self::require_not_paused(&env);
+
+        if !is_valid_category(&category) {
+            return Err(Error::InvalidCategory);
+        }
 
         if !is_valid_review_length(&review) {
             return Err(Error::ReviewTooLong);
@@ -66,8 +152,23 @@ impl ReputationContract {
 
         let key = EndorsementKey { target: target.clone(), sender: sender.clone() };
 
-        if env.storage().persistent().has(&key) {
-            return Err(Error::AlreadyEndorsed);
+        // Allow re-endorsement after revocation: if the key exists but is inactive, overwrite it.
+        // If it exists and is active, it's a duplicate.
+        let existing: Option<Endorsement> = env.storage().persistent().get(&key);
+        if let Some(ref prev) = existing {
+            if prev.active {
+                return Err(Error::AlreadyEndorsed);
+            }
+            // Previous endorsement was revoked — rebuild endorsers list without the sender.
+            let endorsers_key = DataKey::Endorsers(target.clone());
+            let endorsers: Vec<Address> = env.storage().persistent().get(&endorsers_key).unwrap_or(Vec::new(&env));
+            let mut filtered: Vec<Address> = Vec::new(&env);
+            for endorser in endorsers.iter() {
+                if endorser != sender {
+                    filtered.push_back(endorser);
+                }
+            }
+            env.storage().persistent().set(&endorsers_key, &filtered);
         }
 
         // Fetch sender's current score
@@ -85,12 +186,6 @@ impl ReputationContract {
 
         let base_points: u32 = 10;
         let points_added = (base_points * multiplier) / 100;
-
-        // Update target's total score
-        let target_score_key = DataKey::TotalScore(target.clone());
-        let mut current_target_score: u32 = env.storage().persistent().get(&target_score_key).unwrap_or(0);
-        current_target_score += points_added;
-        env.storage().persistent().set(&target_score_key, &current_target_score);
 
         let timestamp = env.ledger().timestamp();
         let endorsement = Endorsement {
@@ -152,6 +247,8 @@ impl ReputationContract {
     ) -> Result<(), Error> {
         sender.require_auth();
 
+        Self::require_not_paused(&env);
+
         let key = EndorsementKey { target: target.clone(), sender: sender.clone() };
         let mut endorsement: Endorsement = match env.storage().persistent().get(&key) {
             Some(e) => e,
@@ -164,16 +261,6 @@ impl ReputationContract {
 
         endorsement.active = false;
         env.storage().persistent().set(&key, &endorsement);
-
-        // Deduct points from target's total score
-        let target_score_key = DataKey::TotalScore(target.clone());
-        let mut current_target_score: u32 = env.storage().persistent().get(&target_score_key).unwrap_or(0);
-        if current_target_score >= endorsement.weight_applied {
-            current_target_score -= endorsement.weight_applied;
-        } else {
-            current_target_score = 0;
-        }
-        env.storage().persistent().set(&target_score_key, &current_target_score);
 
         // Publish event
         env.events().publish((symbol_short!("revoke"), target, sender), endorsement.weight_applied);
@@ -189,6 +276,16 @@ impl ReputationContract {
         new_review: String,
     ) -> Result<(), Error> {
         sender.require_auth();
+
+        Self::require_not_paused(&env);
+
+        if !is_valid_category(&new_category) {
+            return Err(Error::InvalidCategory);
+        }
+
+        if !is_valid_review_length(&new_review) {
+            return Err(Error::ReviewTooLong);
+        }
 
         let key = EndorsementKey { target: target.clone(), sender: sender.clone() };
         let mut endorsement: Endorsement = match env.storage().persistent().get(&key) {
