@@ -25,5 +25,12 @@ target/
 installer.exe
 temp_project/
 stellar-bin/
+
+# editor / local tooling
 .idea/
-.vscode/*.log
+.vscode/
+*.log
+
+# generated contract snapshot output
+contract/hello_world/test_snapshots/
+contract/hello_world/test_output.txt
