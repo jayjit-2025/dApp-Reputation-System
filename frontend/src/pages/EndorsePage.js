@@ -301,6 +301,7 @@ const EndorsePage = () => {
             </select>
           </div>
 
+          <div className="form-group">
             <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span>Review Memo (Optional)</span>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
