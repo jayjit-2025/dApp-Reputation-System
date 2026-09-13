@@ -1,5 +1,8 @@
 {
+  "installCommand": "npm install --legacy-peer-deps",
+  "buildCommand": "cross-env CI=false npm run build",
   "outputDirectory": "build",
+  "framework": "create-react-app",
   "rewrites": [
     {
       "source": "/(.*)",
