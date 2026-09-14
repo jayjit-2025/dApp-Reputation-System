@@ -372,3 +372,214 @@ fn test_score_query_for_unendorsed_target() {
     assert_eq!(client.get_score(&random_target), 0);
     assert_eq!(client.get_endorsement_count(&random_target), 0);
 }
+
+// ─── Day 3: Category Score Tests ────────────────────────────────────────
+
+#[test]
+fn test_category_score_tracking() {
+    let (env, client, _admin) = setup();
+    let sender = Address::generate(&env);
+    let target = Address::generate(&env);
+    let category = String::from_str(&env, "Development");
+    let review = String::from_str(&env, "Great code!");
+    client.endorse(&sender, &target, &category, &review);
+
+    let cat_score = client.get_category_score(&target, &category);
+    assert_eq!(cat_score, 1);
+
+    let breakdown = client.get_category_breakdown(&target);
+    assert_eq!(breakdown.get(category.clone()).unwrap(), 1);
+}
+
+#[test]
+fn test_category_scores_multiple_categories() {
+    let (env, client, _admin) = setup();
+    let target = Address::generate(&env);
+
+    let sender1 = Address::generate(&env);
+    let cat1 = String::from_str(&env, "Development");
+    let review = String::from_str(&env, "Great!");
+    client.endorse(&sender1, &target, &cat1, &review);
+
+    let sender2 = Address::generate(&env);
+    let cat2 = String::from_str(&env, "Reliability");
+    client.endorse(&sender2, &target, &cat2, &review);
+
+    let sender3 = Address::generate(&env);
+    client.endorse(&sender3, &target, &cat1, &review);
+
+    assert_eq!(client.get_category_score(&target, &cat1), 2);
+    assert_eq!(client.get_category_score(&target, &cat2), 1);
+    assert_eq!(client.get_score(&target), 3);
+}
+
+#[test]
+fn test_category_score_deducted_on_revoke() {
+    let (env, client, _admin) = setup();
+    let sender = Address::generate(&env);
+    let target = Address::generate(&env);
+    let category = String::from_str(&env, "Development");
+    let review = String::from_str(&env, "Great!");
+    client.endorse(&sender, &target, &category, &review);
+    assert_eq!(client.get_category_score(&target, &category), 1);
+
+    client.revoke_endorsement(&sender, &target);
+    assert_eq!(client.get_category_score(&target, &category), 0);
+    assert_eq!(client.get_score(&target), 0);
+}
+
+#[test]
+fn test_category_score_adjusted_on_category_change() {
+    let (env, client, _admin) = setup();
+    let sender = Address::generate(&env);
+    let target = Address::generate(&env);
+    let cat1 = String::from_str(&env, "Development");
+    let review = String::from_str(&env, "Great!");
+    client.endorse(&sender, &target, &cat1, &review);
+    assert_eq!(client.get_category_score(&target, &cat1), 1);
+
+    let cat2 = String::from_str(&env, "Reliability");
+    let new_review = String::from_str(&env, "Updated!");
+    client.update_endorsement(&sender, &target, &cat2, &new_review);
+
+    assert_eq!(client.get_category_score(&target, &cat1), 0);
+    assert_eq!(client.get_category_score(&target, &cat2), 1);
+}
+
+#[test]
+fn test_category_breakdown_empty() {
+    let (env, client, _admin) = setup();
+    let target = Address::generate(&env);
+    let breakdown = client.get_category_breakdown(&target);
+    assert_eq!(breakdown.len(), 0);
+}
+
+// ─── Day 4: Configurable Parameters Tests ───────────────────────────────
+
+#[test]
+fn test_default_config() {
+    let (_env, client, _admin) = setup();
+    let config = client.get_config();
+    assert_eq!(config.grace_period_days, 30);
+    assert_eq!(config.decay_rate_pct, 10);
+    assert_eq!(config.decay_period_days, 7);
+    assert_eq!(config.floor_pct, 20);
+    assert_eq!(config.base_points, 10);
+}
+
+#[test]
+fn test_set_config() {
+    let (_env, client, _admin) = setup();
+    client.set_config(&14, &5, &3, &30, &20);
+    let config = client.get_config();
+    assert_eq!(config.grace_period_days, 14);
+    assert_eq!(config.decay_rate_pct, 5);
+    assert_eq!(config.decay_period_days, 3);
+    assert_eq!(config.floor_pct, 30);
+    assert_eq!(config.base_points, 20);
+}
+
+#[test]
+fn test_config_affects_base_points() {
+    let (env, client, _admin) = setup();
+    // Default base_points=10, sender score=0 => multiplier=10 => (10*10)/100=1
+    let sender = Address::generate(&env);
+    let target = Address::generate(&env);
+    let category = String::from_str(&env, "Dev");
+    let review = String::from_str(&env, "Good");
+    client.endorse(&sender, &target, &category, &review);
+    assert_eq!(client.get_score(&target), 1);
+
+    // Change base_points to 20
+    client.set_config(&30, &10, &7, &20, &20);
+    let sender2 = Address::generate(&env);
+    let target2 = Address::generate(&env);
+    client.endorse(&sender2, &target2, &category, &review);
+    assert_eq!(client.get_score(&target2), 2);
+}
+
+#[test]
+fn test_config_affects_decay() {
+    let env = Env::default();
+    env.mock_all_auths();
+    let initial_time: u64 = 1000000;
+    env.ledger().set(LedgerInfo {
+        timestamp: initial_time,
+        protocol_version: 22,
+        sequence_number: 1,
+        network_id: [0; 32],
+        base_reserve: 10000000,
+        min_temp_entry_ttl: 16,
+        min_persistent_entry_ttl: 4096,
+        max_entry_ttl: 6312000,
+    });
+    let admin = Address::generate(&env);
+    let contract_id = env.register(ReputationContract, (&admin,));
+    let client = ReputationContractClient::new(&env, &contract_id);
+
+    // Set faster decay: 7-day grace, 20% per day, 1-day periods, 10% floor
+    client.set_config(&7, &20, &1, &10, &10);
+
+    let sender = Address::generate(&env);
+    let target = Address::generate(&env);
+    let category = String::from_str(&env, "Dev");
+    let review = String::from_str(&env, "Good");
+    client.endorse(&sender, &target, &category, &review);
+    assert_eq!(client.get_score(&target), 1);
+
+    // 6 days later: still in grace period
+    let six_days: u64 = 6 * 24 * 60 * 60;
+    env.ledger().set(LedgerInfo {
+        timestamp: initial_time + six_days,
+        protocol_version: 22,
+        sequence_number: 2,
+        network_id: [0; 32],
+        base_reserve: 10000000,
+        min_temp_entry_ttl: 16,
+        min_persistent_entry_ttl: 4096,
+        max_entry_ttl: 6312000,
+    });
+    assert_eq!(client.get_score(&target), 1);
+
+    // 9 days later: 2 days past grace => 2 periods * 20% = 40% decay => 60% of 1 = 0 (truncated)
+    let nine_days: u64 = 9 * 24 * 60 * 60;
+    env.ledger().set(LedgerInfo {
+        timestamp: initial_time + nine_days,
+        protocol_version: 22,
+        sequence_number: 3,
+        network_id: [0; 32],
+        base_reserve: 10000000,
+        min_temp_entry_ttl: 16,
+        min_persistent_entry_ttl: 4096,
+        max_entry_ttl: 6312000,
+    });
+    assert_eq!(client.get_score(&target), 0);
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #10)")]
+fn test_invalid_config_zero_grace() {
+    let (_env, client, _admin) = setup();
+    client.set_config(&0, &10, &7, &20, &10);
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #10)")]
+fn test_invalid_config_decay_rate_100() {
+    let (_env, client, _admin) = setup();
+    client.set_config(&30, &100, &7, &20, &10);
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #10)")]
+fn test_invalid_config_floor_100() {
+    let (_env, client, _admin) = setup();
+    client.set_config(&30, &10, &7, &100, &10);
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #10)")]
+fn test_invalid_config_zero_base_points() {
+    let (_env, client, _admin) = setup();
+    client.set_config(&30, &10, &7, &20, &0);
+}

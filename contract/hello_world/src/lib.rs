@@ -1,5 +1,5 @@
 #![no_std]
-use soroban_sdk::{contract, contractimpl, contracterror, contracttype, symbol_short, Address, Env, String, Vec};
+use soroban_sdk::{contract, contractimpl, contracterror, contracttype, symbol_short, Address, Env, Map, String, Vec};
 
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
@@ -14,6 +14,7 @@ pub enum Error {
     Unauthorized = 7,
     ContractPaused = 8,
     InvalidCategory = 9,
+    InvalidConfig = 10,
 }
 
 pub fn is_valid_review_length(review: &String) -> bool {
@@ -41,15 +42,40 @@ pub struct Endorsement {
     pub active: bool,
 }
 
+// Configurable decay parameters — admin can tune without redeployment
+#[contracttype]
+#[derive(Clone)]
+pub struct Config {
+    pub grace_period_days: u32,   // days before decay starts (default 30)
+    pub decay_rate_pct: u32,      // % decay per period (default 10)
+    pub decay_period_days: u32,   // days per decay period (default 7)
+    pub floor_pct: u32,           // minimum % of weight retained (default 20)
+    pub base_points: u32,         // base endorsement points (default 10)
+}
+
+impl Config {
+    fn default() -> Self {
+        Config {
+            grace_period_days: 30,
+            decay_rate_pct: 10,
+            decay_period_days: 7,
+            floor_pct: 20,
+            base_points: 10,
+        }
+    }
+}
+
 // Data key for contract state
 #[contracttype]
 #[derive(Clone)]
 pub enum DataKey {
     EndorsementCount(Address),
     Endorsers(Address),
+    CategoryScores(Address),
     Admin,
     Paused,
     Initialized,
+    Config,
 }
 
 #[contract]
@@ -63,6 +89,7 @@ impl ReputationContract {
         env.storage().instance().set(&DataKey::Admin, &admin);
         env.storage().instance().set(&DataKey::Paused, &false);
         env.storage().instance().set(&DataKey::Initialized, &true);
+        env.storage().instance().set(&DataKey::Config, &Config::default());
     }
 
     pub fn initialize(env: Env, admin: Address) -> Result<(), Error> {
@@ -74,6 +101,7 @@ impl ReputationContract {
         env.storage().instance().set(&DataKey::Admin, &admin);
         env.storage().instance().set(&DataKey::Paused, &false);
         env.storage().instance().set(&DataKey::Initialized, &true);
+        env.storage().instance().set(&DataKey::Config, &Config::default());
         Ok(())
     }
 
@@ -123,6 +151,55 @@ impl ReputationContract {
         if paused {
             panic!("contract is paused");
         }
+    }
+
+    // ─── Configurable Parameters ─────────────────────────────────────────
+
+    pub fn set_config(
+        env: Env,
+        grace_period_days: u32,
+        decay_rate_pct: u32,
+        decay_period_days: u32,
+        floor_pct: u32,
+        base_points: u32,
+    ) -> Result<(), Error> {
+        let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap_or_else(|| {
+            panic!("contract not initialized")
+        });
+        admin.require_auth();
+
+        if grace_period_days == 0 || decay_rate_pct == 0 || decay_rate_pct >= 100
+            || decay_period_days == 0 || floor_pct >= 100 || base_points == 0
+        {
+            return Err(Error::InvalidConfig);
+        }
+
+        let config = Config {
+            grace_period_days,
+            decay_rate_pct,
+            decay_period_days,
+            floor_pct,
+            base_points,
+        };
+        env.storage().instance().set(&DataKey::Config, &config);
+        Ok(())
+    }
+
+    pub fn get_config(env: Env) -> Config {
+        env.storage().instance().get(&DataKey::Config).unwrap_or(Config::default())
+    }
+
+    // ─── Category Score Queries ──────────────────────────────────────────
+
+    pub fn get_category_score(env: Env, target: Address, category: String) -> u32 {
+        let cat_scores_key = DataKey::CategoryScores(target);
+        let cat_scores: Map<String, u32> = env.storage().persistent().get(&cat_scores_key).unwrap_or(Map::new(&env));
+        cat_scores.get(category).unwrap_or(0)
+    }
+
+    pub fn get_category_breakdown(env: Env, target: Address) -> Map<String, u32> {
+        let cat_scores_key = DataKey::CategoryScores(target);
+        env.storage().persistent().get(&cat_scores_key).unwrap_or(Map::new(&env))
     }
 
     // ─── Core Endorsement Logic ──────────────────────────────────────────
@@ -184,8 +261,8 @@ impl ReputationContract {
             _ => 200,          // 2.0x
         };
 
-        let base_points: u32 = 10;
-        let points_added = (base_points * multiplier) / 100;
+        let config: Config = env.storage().instance().get(&DataKey::Config).unwrap_or(Config::default());
+        let points_added = (config.base_points * multiplier) / 100;
 
         let timestamp = env.ledger().timestamp();
         let endorsement = Endorsement {
@@ -209,6 +286,13 @@ impl ReputationContract {
         endorsers.push_back(sender.clone());
         env.storage().persistent().set(&endorsers_key, &endorsers);
 
+        // Update category-specific score for target
+        let cat_scores_key = DataKey::CategoryScores(target.clone());
+        let mut cat_scores: Map<String, u32> = env.storage().persistent().get(&cat_scores_key).unwrap_or(Map::new(&env));
+        let cat_score = cat_scores.get(category.clone()).unwrap_or(0);
+        cat_scores.set(category.clone(), cat_score + points_added);
+        env.storage().persistent().set(&cat_scores_key, &cat_scores);
+
         // Publish event with both category and points_added
         env.events().publish((symbol_short!("endorse"), target, sender), (category, points_added));
 
@@ -219,22 +303,22 @@ impl ReputationContract {
         if !endorsement.active {
             return 0;
         }
+        let config: Config = env.storage().instance().get(&DataKey::Config).unwrap_or(Config::default());
         let current_time = env.ledger().timestamp();
         if current_time <= endorsement.timestamp {
             return endorsement.weight_applied;
         }
         let elapsed = current_time - endorsement.timestamp;
-        let thirty_days: u64 = 30 * 24 * 60 * 60; // 2,592,000 seconds
-        if elapsed < thirty_days {
+        let grace_secs = config.grace_period_days as u64 * 24 * 60 * 60;
+        if elapsed < grace_secs {
             return endorsement.weight_applied;
         }
-        let overtime = elapsed - thirty_days;
-        let seven_days: u64 = 7 * 24 * 60 * 60;
-        let periods = overtime / seven_days; // Number of weeks decayed
-        let decay_pct = periods * 10; // 10% per week
-        if decay_pct >= 80 {
-            // Minimum 20% remaining
-            (endorsement.weight_applied * 20) / 100
+        let overtime = elapsed - grace_secs;
+        let period_secs = config.decay_period_days as u64 * 24 * 60 * 60;
+        let periods = overtime / period_secs;
+        let decay_pct = periods * config.decay_rate_pct as u64;
+        if decay_pct >= (100 - config.floor_pct as u64) {
+            (endorsement.weight_applied * config.floor_pct) / 100
         } else {
             (endorsement.weight_applied * (100 - decay_pct as u32)) / 100
         }
@@ -261,6 +345,14 @@ impl ReputationContract {
 
         endorsement.active = false;
         env.storage().persistent().set(&key, &endorsement);
+
+        // Deduct from category-specific score
+        let cat_scores_key = DataKey::CategoryScores(target.clone());
+        let mut cat_scores: Map<String, u32> = env.storage().persistent().get(&cat_scores_key).unwrap_or(Map::new(&env));
+        let cat_score = cat_scores.get(endorsement.category.clone()).unwrap_or(0);
+        let new_cat_score = cat_score.saturating_sub(endorsement.weight_applied);
+        cat_scores.set(endorsement.category.clone(), new_cat_score);
+        env.storage().persistent().set(&cat_scores_key, &cat_scores);
 
         // Publish event
         env.events().publish((symbol_short!("revoke"), target, sender), endorsement.weight_applied);
@@ -297,9 +389,24 @@ impl ReputationContract {
             return Err(Error::AlreadyRevoked);
         }
 
+        let old_category = endorsement.category.clone();
         endorsement.category = new_category.clone();
         endorsement.review = new_review;
         env.storage().persistent().set(&key, &endorsement);
+
+        // If category changed, adjust category scores: deduct from old, add to new
+        if old_category != new_category {
+            let cat_scores_key = DataKey::CategoryScores(target.clone());
+            let mut cat_scores: Map<String, u32> = env.storage().persistent().get(&cat_scores_key).unwrap_or(Map::new(&env));
+
+            let old_cat_score = cat_scores.get(old_category.clone()).unwrap_or(0);
+            cat_scores.set(old_category, old_cat_score.saturating_sub(endorsement.weight_applied));
+
+            let new_cat_score = cat_scores.get(new_category.clone()).unwrap_or(0);
+            cat_scores.set(new_category.clone(), new_cat_score + endorsement.weight_applied);
+
+            env.storage().persistent().set(&cat_scores_key, &cat_scores);
+        }
 
         // Publish event
         env.events().publish((symbol_short!("update"), target, sender), new_category);
